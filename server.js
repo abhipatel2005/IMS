@@ -28,10 +28,13 @@ mongoose.connect(mongoURL, {
 
 app.get("/", (req,res) => {
     res.render("index.ejs");
-})
+});
 app.get("/login", (req,res) => {
     res.render("login.ejs");
-})
+});
+app.get("/dashboard", (req,res) => {
+  res.render("dashboard.ejs");
+});
 
 // Signup route
 app.post('/register', async (req, res) => {
@@ -71,8 +74,8 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid Password' });
     }
     
-    // res.json({ message: 'User logged in successfully' });
-    res.redirect("dashboard.ejs");
+    res.json({ message: 'User logged /in successfully' });
+    // res.redirect("/login/dashboard.ejs");
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'An error occurred' });
