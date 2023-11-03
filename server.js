@@ -5,6 +5,7 @@ const session = require('express-session');
 const User = require('./model/user.js');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
+const ejs = require("ejs");
 dotenv.config();
 const mongo_user = process.env.MONGO_USER;
 const mongo_pass = process.env.MONGO_PASS;
@@ -14,6 +15,7 @@ const app = express();
 const port = 3000;
 app.use(bodyParser.urlencoded({extended : true}));
 app.use(express.static("public"));
+app.set('view engine', 'ejs');
 
 mongoose.connect(mongoURL, {
     useNewUrlParser: true,
@@ -33,7 +35,24 @@ app.get("/login", (req,res) => {
     res.render("login.ejs");
 });
 app.get("/dashboard", (req,res) => {
-  res.render("dashboard.ejs");
+    res.render("dashboard.ejs");
+});
+app.get("/add", (req,res) => {
+  res.render("add.ejs");
+});
+
+app.get('/get_data', (req, res) => {
+  // Retrieve the data from MongoDB
+  User.findOne({}).then((data) => {
+      if (!data) {
+          console.error('Error retrieving data from MongoDB:', err);
+          res.status(500).send('Error retrieving data');
+      } else {
+          // Render the EJS template with the retrieved data
+          console.log(data)
+          res.render('dashboard', { email: data.email });
+      }
+  });
 });
 
 // Signup route
@@ -48,10 +67,19 @@ app.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Email already in use' });
     }
     
-    const user = new User({ email, password });
+    bcrypt.hash(req.body.password,10,function(err,hashedPass){
+          if(err){
+            res.json({
+              error: err,
+            })
+          }
+        });
+
+    const user = new User({ email, password:hashedPass });
+
     await user.save();
-    res.json({ message: 'User created successfully' });
-    // res.render("login.ejs");
+    // res.json({ message: 'User created successfully' });
+    res.render("login.ejs");
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'An error occurred' });
@@ -74,8 +102,8 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid Password' });
     }
     
-    res.json({ message: 'User logged /in successfully' });
-    // res.redirect("/login/dashboard.ejs");
+    // res.json({ message: 'User logged /in successfully' });
+    res.redirect("/dashboard");
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'An error occurred' });
