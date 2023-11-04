@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <select id="dropdown1">
+        <option value="option1">Option 1</option>
+        <option value="option2">Option 2</option>
+        <option value="option3">Option 3</option>
+      </select>
+      
+      <!-- Second Dropdown -->
+      <select id="dropdown2">
+        <!-- Options will be populated dynamically -->
+      </select>
+      <script>// Get references to the two dropdowns
+        const dropdown1 = document.getElementById('dropdown1');
+        const dropdown2 = document.getElementById('dropdown2');
+        
+        // Define a mapping of options for the second dropdown based on the selection in the first dropdown
+        const optionsMap = {
+          option1: ['Suboption 1.1', 'Suboption 1.2', 'Suboption 1.3'],
+          option2: ['Suboption 2.1', 'Suboption 2.2'],
+          option3: ['Suboption 3.1', 'Suboption 3.2', 'Suboption 3.3'],
+        };
+        
+        // Function to update the options in the second dropdown based on the selection in the first dropdown
+        function updateSecondDropdown() {
+          const selectedOption = dropdown1.value;
+          const options = optionsMap[selectedOption] || [];
+        
+          // Clear existing options
+          dropdown2.innerHTML = '';
+        
+          // Add new options
+          options.forEach((option) => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option;
+            optionElement.textContent = option;
+            dropdown2.appendChild(optionElement);
+          });
+        }
+        
+        // Add an event listener to the first dropdown to update the second dropdown when it changes
+        dropdown1.addEventListener('change', updateSecondDropdown);
+        
+        // Call the function to initialize the second dropdown based on the initial selection
+        updateSecondDropdown();
+        </script>
+</body>
+</html>

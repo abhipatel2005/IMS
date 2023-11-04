@@ -35,7 +35,7 @@ app.get("/login", (req,res) => {
     res.render("login.ejs");
 });
 app.get("/dashboard", (req,res) => {
-    res.render("dashboard.ejs");
+    res.render("dashboard_1.ejs");
 });
 app.get("/add", (req,res) => {
   res.render("add.ejs");
@@ -66,16 +66,11 @@ app.post('/register', async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ error: 'Email already in use' });
     }
-    
-    bcrypt.hash(req.body.password,10,function(err,hashedPass){
-          if(err){
-            res.json({
-              error: err,
-            })
-          }
-        });
+    const saltRounds = 10; // You can adjust the number of salt rounds
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const user = new User({ email, password:hashedPass });
+    const user = new User({ email, password:hashedPassword });
+    console.log(hashedPassword);
 
     await user.save();
     // res.json({ message: 'User created successfully' });
@@ -91,6 +86,16 @@ app.post('/login', async (req, res) => {
 
   const { email, password } = req.body;
 
+  // try {
+  //   const user = await User.findOne({ email });
+  //   if (!user) {
+  //     return res.status(401).json({ error: 'Invalid credentials' });
+  //   }
+
+  //   const isPasswordValid = bcrypt.compare(password, user.password);
+  //   if (!isPasswordValid) {
+  //     return res.status(401).json({ error: 'Invalid Password' });
+  //   }
   try {
     const user = await User.findOne({ email });
     if (!user) {
@@ -100,7 +105,7 @@ app.post('/login', async (req, res) => {
     const isPasswordValid = bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid Password' });
-    }
+  }
     
     // res.json({ message: 'User logged /in successfully' });
     res.redirect("/dashboard");
