@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const User = require('./model/user.js');
+const Products = require('./model/product.js');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
 const ejs = require("ejs");
@@ -34,26 +35,59 @@ app.get("/", (req,res) => {
 app.get("/login", (req,res) => {
     res.render("login.ejs");
 });
-app.get("/dashboard", (req,res) => {
-    res.render("dashboard_1.ejs");
+app.get('/dashboard', (req, res) => {
+      res.render('dashboard');
 });
+
 app.get("/add", (req,res) => {
   res.render("add.ejs");
 });
 
+app.post("/submit", async(req, res) => {
+  try {
+      let product_name = req.body.product_name;
+      let product_key = req.body.product_key;
+      let department = req.body.department;
+      let category = req.body.category;
+      let sub_category = req.body.sub_category;
+      let specification = req.body.specification;
+
+      console.log(product_name,product_key,department,category,sub_category,specification);
+
+      const newProduct = new Products({
+          product_name,
+          product_key,
+          department,
+          category,
+          sub_category,
+          specification
+      });
+
+  await newProduct.save();
+  console.log("Form submitted:", newProduct);
+  // res.json({ message: "Form submitted successfully" });
+  res.render("dashboard.ejs", Products);
+  // res.sendFile(__dirname + "/public/success.html");
+  } catch (err) {
+      console.error("Error saving to MongoDB:", err);
+      res.status(500).json({ error: "An error occurred" });
+  }
+});
+
 app.get('/get_data', (req, res) => {
   // Retrieve the data from MongoDB
-  User.findOne({}).then((data) => {
+  Products.findOne({}).then((data) => {
       if (!data) {
           console.error('Error retrieving data from MongoDB:', err);
           res.status(500).send('Error retrieving data');
       } else {
           // Render the EJS template with the retrieved data
           console.log(data)
-          res.render('dashboard', { email: data.email });
+          res.render('dashboard', { name: data.name });
       }
   });
 });
+
 
 // Signup route
 app.post('/register', async (req, res) => {
