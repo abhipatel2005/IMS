@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IMS | Dashboard</title>
     <!-- ======= Styles ====== -->
-    <link rel="stylesheet" href="styles/dashboard.css">
+    <link rel="stylesheet" href="/styles/data.css">
 </head>
 
 <body>
@@ -104,72 +104,16 @@
                 </div>
 
                 <div class="user">
-                    <img src="assets/imgs/customer01.jpg" alt="">
-                </div>
-            </div>
-
-            <!-- ======================= Cards ================== -->
-            <div class="cardBox">
-                <div class="card">
-                    <div>
-                        <div class="numbers">
-                            <% if(locals.todayCount){ %>
-                                <%= todayCount %>
-                            <% } %>
-                        </div>
-                        <div class="cardName">Today's Order(s)</div>
-                    </div>
-
-                    <div class="iconBx">
-                        <ion-icon name="eye-outline"></ion-icon>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div>
-                        <div class="numbers">
-                            <% if(locals.count){ %>
-                                <%= count %>
-                            <% } %>
-                        </div>
-                        <div class="cardName">Orders</div>
-                    </div>
-
-                    <div class="iconBx">
-                        <ion-icon name="cart-outline"></ion-icon>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div>
-                        <div class="numbers">284</div>
-                        <div class="cardName">Comments</div>
-                    </div>
-
-                    <div class="iconBx">
-                        <ion-icon name="chatbubbles-outline"></ion-icon>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div>
-                        <div class="numbers">$7,842</div>
-                        <div class="cardName">Earning</div>
-                    </div>
-
-                    <div class="iconBx">
-                        <ion-icon name="cash-outline"></ion-icon>
-                    </div>
+                    <img src="/assets/imgs/customer01.jpg" alt="">
                 </div>
             </div>
 
             <!-- ================ Order Details List ================= -->
             <div class="details">
                 <div class="recentOrders">
-                    <div class="cardHeader">
-                        <h2>Recent Orders</h2>
-                        <a href="/get_data/data" class="btn">View All</a>
-                    </div>
+                    <h2>All Orders</h2>
+                    <!-- <div class="cardHeader">
+                    </div> -->
 
                     <table>
                         <thead>
@@ -178,15 +122,16 @@
                                 <td>Product Id</td>
                                 <td>Category</td>
                                 <td>Specification</td>
+                                <td>Date/Time</td>
                             </tr>
                         </thead>
 
                         <tbody>
                             <tr>
                                 <td>
-                                    <% if(locals.recent){ %>
+                                    <% if(locals.data){ %>
 
-                                        <% recent.forEach(item => { %>
+                                        <% data.forEach(item => { %>
                                             <tr>
                                                 <td>
                                                     <%= item.product_name %>
@@ -200,9 +145,11 @@
                                                 <td>
                                                     <%= item.specification %>
                                                 </td>
+                                                <td>
+                                                    <%= item.createdAt %>
+                                                </td>
                                             </tr>
                                           <% }); %>
-
                                     <% } %>
                                 </td>
                             </tr>
@@ -212,7 +159,7 @@
                 </div>
 
                 <!-- ================= New Customers ================ -->
-                <div class="recentCustomers">
+                <!-- <div class="recentCustomers">
                     <div class="cardHeader">
                         <h2>Recent Customers</h2>
                     </div>
@@ -220,7 +167,7 @@
                     <table>
                         <tr>
                             <td width="60px">
-                                <div class="imgBx"><img src="assets/imgs/customer02.jpg" alt=""></div>
+                                <div class="imgBx"><img src="/assets/imgs/customer02.jpg" alt=""></div>
                             </td>
                             <td>
                                 <h4>David <br> <span>Italy</span></h4>
@@ -229,7 +176,7 @@
 
                         <tr>
                             <td width="60px">
-                                <div class="imgBx"><img src="assets/imgs/customer01.jpg" alt=""></div>
+                                <div class="imgBx"><img src="/assets/imgs/customer01.jpg" alt=""></div>
                             </td>
                             <td>
                                 <h4>Amit <br> <span>India</span></h4>
@@ -238,7 +185,7 @@
 
                         <tr>
                             <td width="60px">
-                                <div class="imgBx"><img src="assets/imgs/customer02.jpg" alt=""></div>
+                                <div class="imgBx"><img src="/assets/imgs/customer02.jpg" alt=""></div>
                             </td>
                             <td>
                                 <h4>David <br> <span>Italy</span></h4>
@@ -247,7 +194,7 @@
 
                         <tr>
                             <td width="60px">
-                                <div class="imgBx"><img src="assets/imgs/customer01.jpg" alt=""></div>
+                                <div class="imgBx"><img src="/assets/imgs/customer01.jpg" alt=""></div>
                             </td>
                             <td>
                                 <h4>Amit <br> <span>India</span></h4>
@@ -256,7 +203,7 @@
 
                         <tr>
                             <td width="60px">
-                                <div class="imgBx"><img src="assets/imgs/customer02.jpg" alt=""></div>
+                                <div class="imgBx"><img src="/assets/imgs/customer02.jpg" alt=""></div>
                             </td>
                             <td>
                                 <h4>David <br> <span>Italy</span></h4>
@@ -265,7 +212,7 @@
 
                         <tr>
                             <td width="60px">
-                                <div class="imgBx"><img src="assets/imgs/customer01.jpg" alt=""></div>
+                                <div class="imgBx"><img src="/assets/imgs/customer01.jpg" alt=""></div>
                             </td>
                             <td>
                                 <h4>Amit <br> <span>India</span></h4>
@@ -274,7 +221,7 @@
 
                         <tr>
                             <td width="60px">
-                                <div class="imgBx"><img src="assets/imgs/customer01.jpg" alt=""></div>
+                                <div class="imgBx"><img src="/assets/imgs/customer01.jpg" alt=""></div>
                             </td>
                             <td>
                                 <h4>David <br> <span>Italy</span></h4>
@@ -283,20 +230,20 @@
 
                         <tr>
                             <td width="60px">
-                                <div class="imgBx"><img src="assets/imgs/customer02.jpg" alt=""></div>
+                                <div class="imgBx"><img src="/assets/imgs/customer02.jpg" alt=""></div>
                             </td>
                             <td>
                                 <h4>Amit <br> <span>India</span></h4>
                             </td>
                         </tr>
                     </table>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
 
     <!-- =========== Scripts =========  -->
-    <script src="assets/main.js"></script>
+    <script src="/assets/main.js"></script>
 
     <!-- ====== ionicons ======= -->
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>

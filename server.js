@@ -37,12 +37,19 @@ app.get("/", (req,res) => {
 app.get("/login", (req,res) => {
     res.render("login.ejs");
 });
-app.get('/dashboard', (req, res) => {
-      res.render("dashboard.ejs");
-});
+// app.get('/dashboard', (req, res) => {
+//       res.render("dashboard.ejs");
+// });
 
 app.get("/add", (req,res) => {
   res.render("add.ejs");
+});
+app.get("/get_data/data", async(req,res) => {
+
+  const db = await Products();
+  const data = await Products.find().sort({ createdAt: -1 });
+
+  res.render("data", {data});
 });
 
 app.post("/submit", async(req, res) => {
@@ -83,13 +90,24 @@ app.get('/get_data', async (req, res) => {
     const count = await Products.countDocuments();
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
-    const date = await Products.find({
-      createdAt: { $gte: currentDate },
+    // const date = await Products.find({
+    //   createdAt: { $gte: currentDate },
+    // });
+    const today = await Products.find({ "createdAt": { $gt: currentDate } })
+    var productData = {};
+
+    today.forEach((item) => {
+      const createdAtDate = new Date(item.createdAt).toLocaleDateString();
+      const count = productData[createdAtDate] ? productData[createdAtDate] : 0;
+      productData[createdAtDate] = count + 1;
     });
+    const todayCount = today.length;
+    const recent = await Products.find().sort({ createdAt: -1 }).limit(10);
+    console.log(productData);
 
     const data = await Products.find();
 
-    res.render('dashboard', { data, count, date });
+    res.render('dashboard', { count, todayCount, recent });
   } catch (error) {
     console.error('Error retrieving data:', error);
     res.status(500).send('Internal Server Error');

@@ -6,7 +6,11 @@ const productSchema = new mongoose.Schema({
   department: String,
   category: String,
   sub_category: String,
-  specification: String, 
+  specification: String,
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  }
 });
 
 const Products = mongoose.model('Products', productSchema);
