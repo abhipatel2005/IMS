@@ -98,7 +98,7 @@
 
                 <div class="search">
                     <label>
-                        <input type="text" placeholder="Search here">
+                        <input type="text" placeholder="Search here" name="search">
                         <ion-icon name="search-outline"></ion-icon>
                     </label>
                 </div>
@@ -112,11 +112,12 @@
             <div class="cardBox">
                 <div class="card">
                     <div>
-                        <% if(locals.email) { %>
-                            <div class="numbers"><%= email %></div>
-                          <% } else { %>
-                            <% } %>
-                            <div class="cardName">Daily Views</div>
+                        <div>
+                            if(locals.date){
+                                
+                            }
+                        </div>
+                        <div class="cardName">Today's Order(s)</div>
                     </div>
 
                     <div class="iconBx">
@@ -126,8 +127,12 @@
 
                 <div class="card">
                     <div>
-                        <div class="numbers">80</div>
-                        <div class="cardName">Sales</div>
+                        <div class="numbers">
+                            <% if(locals.count){ %>
+                                <%= count %>
+                            <% } %>
+                        </div>
+                        <div class="cardName">Orders</div>
                     </div>
 
                     <div class="iconBx">
@@ -163,7 +168,7 @@
                 <div class="recentOrders">
                     <div class="cardHeader">
                         <h2>Recent Orders</h2>
-                        <a href="#" class="btn">View All</a>
+                        <!-- <a href="#" class="btn">View All</a> -->
                     </div>
 
                     <table>
@@ -171,156 +176,35 @@
                             <tr>
                                 <td>Name</td>
                                 <td>Product Id</td>
-                                <td>Payment</td>
-                                <td>Status</td>
+                                <td>Category</td>
+                                <td>Specification</td>
                             </tr>
                         </thead>
 
                         <tbody>
                             <tr>
-                                <td>Diaries Printed Plain Register</td>
-                                <td>1000</td>
-                                <td>Paid</td>
-                                <td><span class="status delivered">Delivered</span></td>
-                            </tr>
+                                <td>
+                                    <% if(locals.data){ %>
 
-                            <tr>
-                                <td>Gel Pen</td>
-                                <td>1001</td>
-                                <td>Due</td>
-                                <td><span class="status pending">Pending</span></td>
-                            </tr>
+                                        <% data.forEach(item => { %>
+                                            <tr>
+                                                <td>
+                                                    <%= item.product_name %>
+                                                </td>
+                                                <td>
+                                                    <%= item.product_key %>
+                                                </td>
+                                                <td>
+                                                    <%= item.category %>
+                                                </td>
+                                                <td>
+                                                    <%= item.specification %>
+                                                </td>
+                                            </tr>
+                                          <% }); %>
 
-                            <tr>
-                                <td>Maplitho Paper</td>
-                                <td>1002</td>
-                                <td>Paid</td>
-                                <td><span class="status return">Return</span></td>
-                            </tr>
-
-                            <tr>
-                                <td>Class Room Desking</td>
-                                <td>1003</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-
-                            <tr>
-                                <td>Executive Table</td>
-                                <td>1004</td>
-                                <td>Paid</td>
-                                <td><span class="status delivered">Delivered</span></td>
-                            </tr>
-
-                            <tr>
-                                <td>Revolving Chair</td>
-                                <td>1005</td>
-                                <td>Due</td>
-                                <td><span class="status pending">Pending</span></td>
-                            </tr>
-
-                            <tr>
-                                <td>Movable File Storage System</td>
-                                <td>1006</td>
-                                <td>Paid</td>
-                                <td><span class="status return">Return</span></td>
-                            </tr>
-
-                            <tr>
-                                <td>Led Luminaire</td>
-                                <td>1007</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-                            <tr>
-                                <td>MCCB</td>
-                                <td>1008</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-                            <tr>
-                                <td>Telecommunication Cable</td>
-                                <td>1009</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-                            <tr>
-                                <td>Television TV</td>
-                                <td>1010</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-                            <tr>
-                                <td>Domestic Refrigerators</td>
-                                <td>1011</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-                            <tr>
-                                <td>Desktop Computers</td>
-                                <td>1012</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-                            <tr>
-                                <td>Laptop Notebook</td>
-                                <td>1013</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-                            <tr>
-                                <td>Computer Printers</td>
-                                <td>1014</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-                            <tr>
-                                <td>Tablet Computers</td>
-                                <td>1015</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-                            <tr>
-                                <td>Alcohol Based Hand Sanitizer</td>
-                                <td>1016</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-                            <tr>
-                                <td>Surgical Gloves as per IS 4148</td>
-                                <td>1017</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-                            <tr>
-                                <td>Desposible Syringes as per IS 10258</td>
-                                <td>1018</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-                            <tr>
-                                <td>Handloom Cotton Bed Sheets</td>
-                                <td>1019</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-                            <tr>
-                                <td>Cotton Towels as per IS 7056</td>
-                                <td>1020</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-                            <tr>
-                                <td>Steel Tubes,Tubulars and Fettings</td>
-                                <td>1021</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
-                            </tr>
-                            <tr>
-                                <td>Commercial CPVC Pipes Fettings</td>
-                                <td>1022</td>
-                                <td>Due</td>
-                                <td><span class="status inProgress">In Progress</span></td>
+                                    <% } %>
+                                </td>
                             </tr>
                           
                         </tbody>

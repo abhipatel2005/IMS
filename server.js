@@ -6,7 +6,7 @@ const User = require('./model/user.js');
 const Products = require('./model/product.js');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
-const ejs = require("ejs");
+// const ejs = require("ejs");
 dotenv.config();
 const mongo_user = process.env.MONGO_USER;
 const mongo_pass = process.env.MONGO_PASS;
@@ -17,6 +17,8 @@ const port = 3000;
 app.use(bodyParser.urlencoded({extended : true}));
 app.use(express.static("public"));
 app.set('view engine', 'ejs');
+// we will add the status of the product soon for now i have described there some specification about the product
+// we will also add the recent employee who place the order soon in the column of recent customers
 
 mongoose.connect(mongoURL, {
     useNewUrlParser: true,
@@ -36,7 +38,7 @@ app.get("/login", (req,res) => {
     res.render("login.ejs");
 });
 app.get('/dashboard', (req, res) => {
-      res.render('dashboard');
+      res.render("dashboard.ejs");
 });
 
 app.get("/add", (req,res) => {
@@ -74,19 +76,26 @@ app.post("/submit", async(req, res) => {
   }
 });
 
-app.get('/get_data', (req, res) => {
-  // Retrieve the data from MongoDB
-  Products.findOne({}).then((data) => {
-      if (!data) {
-          console.error('Error retrieving data from MongoDB:', err);
-          res.status(500).send('Error retrieving data');
-      } else {
-          // Render the EJS template with the retrieved data
-          console.log(data)
-          res.render('dashboard', { name: data.name });
-      }
-  });
+app.get('/get_data', async (req, res) => {
+  try {
+    const db = await Products(); // Assuming connectToDatabase returns a Mongoose connection
+
+    const count = await Products.countDocuments();
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    const date = await Products.find({
+      createdAt: { $gte: currentDate },
+    });
+
+    const data = await Products.find();
+
+    res.render('dashboard', { data, count, date });
+  } catch (error) {
+    console.error('Error retrieving data:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
+
 
 
 // Signup route

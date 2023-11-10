@@ -19,7 +19,7 @@
 
 body {
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: scroll;
 }
 
 .container {
@@ -480,4 +480,7 @@ body {
 .off {
   background-color: #ccc;
   color: black;
+}
+table, tr, td, tbody>tr>td>tr>td{
+  text-align: left;
 }
