@@ -21,7 +21,7 @@
     <link href="checkout.css" rel="stylesheet">
   </head>
   <body class="bg-body-tertiary">
-    <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+    <!-- <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
       <symbol id="check2" viewBox="0 0 16 16">
         <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
       </symbol>
@@ -35,7 +35,7 @@
       <symbol id="sun-fill" viewBox="0 0 16 16">
         <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
       </symbol>
-    </svg>
+    </svg> -->
 
     <div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
         <button id="toggleButton" class="off">Dark Off</button>
@@ -44,39 +44,37 @@
     
 <div class="container align-items-center">
   <main>
-      <div class="col-md-7 col-lg-8 align-items-center">
-        <h4 class="mb-3 mt-3">Add Items</h4>
+      <div class="col-md-7 col-lg-8">
+        <h4 class="mb-3 mt-3 ">Add Items</h4>
         <form action="/submit" method="post">
           <div class="row g-3">
-            <div class="col-sm-6">
+            <!-- <div class="col-sm-6">
               <label for="firstName" class="form-label">Product Name</label>
               <input type="text" class="form-control" id="firstName" name="product_name" placeholder="" value="" required>
               <div class="invalid-feedback">
                 Valid first name is required.
               </div>
-            </div>
+            </div> -->
 
-            <div class="col-sm-6">
+            <!-- <div class="col-sm-6">
               <label for="product_key" class="form-label">Product Key</label>
               <input type="number" class="form-control" id="lastName" placeholder="" name="product_key" required>
               <div class="invalid-feedback">
-                <!-- Valid last name is required. -->
               </div>
+            </div> -->
+
+            <div class="col-12">
+              <label for="Categories" class="form-label">Department :<span class="text-body-secondary"></span></label>
+              <select id="dropdown" name="department">
+                <option value="Personnel Division">Personnel Division</option>
+                <option value="Planning Division">Planning Division</option> 
+                <option value="NRI & ARTD Division">NRI & ARTD Division</option> 
+                <option value="Election Division">Election Division</option>
+              </select>
             </div>
 
             <div class="col-12">
-              <label for="department" name="department" class="form-label">Department</label>
-              <div class="input-group has-validation">
-          
-                <input type="text" class="form-control" id="username" name="department" placeholder="Enter your Department" required>
-              <div class="invalid-feedback">
-                  <!-- Your username is required. -->
-                </div>
-              </div>
-            </div>
-
-            <div class="col-12">
-              <label for="Categories" class="form-label">Categories<span class="text-body-secondary"></span></label>
+              <label for="Categories" class="form-label">Categories :<span class="text-body-secondary"></span></label>
               <select id="dropdown1" name="category">
                 <option value="it_products">IT Products</option>
                 <option value="furniture">Furniture</option> 
@@ -93,14 +91,14 @@
             <div class="col-12">
               <label for="sub-categories" class="form-label">Sub-categories <span class="text-body-secondary"></span></label>
               <select id="dropdown2" name="sub_category">
-                //dunamically updates will be there
+                //dynamically updates will be there
               </select>
             </div>
 
             <div class="col-12">
               <label for="specification" class="form-label">Specifications <span class="text-body-secondary"></span></label>
               <select id="dropdown3" name="specification">
-                //dunamically updates will be there
+                //dynamically updates will be there
               </select>
             </div>
 
@@ -205,6 +203,27 @@ dropdown2.addEventListener('change', updateThirdDropdown);
 updateSecondDropdown();
 updateThirdDropdown();
 
+//for dark mode on and off
+
+let change = document.querySelector("#toggleButton");
+
+        change.addEventListener("click", () => {
+            
+            changeTheme();
+
+            if(document.body.getAttribute("data-bs-theme") !== "light"){
+                change.textContent = "On";
+                cahnge.innerHTML.fadeIn().animate({opacity:0.8});
+            }else{
+                change.textContent = "Dark Off";
+            }
+
+        });
+
+        function changeTheme() {
+            let element = document.body;
+            element.dataset.bsTheme = element.dataset.bsTheme == "light" ? "dark" : "light";
+        }
     </script>
 </body>
 </html>

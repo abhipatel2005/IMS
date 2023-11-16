@@ -115,6 +115,8 @@
                         <div class="numbers">
                             <% if(locals.todayCount){ %>
                                 <%= todayCount %>
+                            <% } else {%>
+                                <div class="numbers">0</div>
                             <% } %>
                         </div>
                         <div class="cardName">Today's Order(s)</div>
@@ -130,7 +132,9 @@
                         <div class="numbers">
                             <% if(locals.count){ %>
                                 <%= count %>
-                            <% } %>
+                            <% } else {%>
+                                <div class="cardName">No Orders</div>
+                            <% }%>
                         </div>
                         <div class="cardName">Orders</div>
                     </div>

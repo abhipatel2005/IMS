@@ -97,11 +97,13 @@
                 </div>
 
                 <div class="search">
-                    <label>
+                    <form action="/get_data/data/search" method="GET">
+                      <label>
                         <input type="text" placeholder="Search here" name="search">
                         <ion-icon name="search-outline"></ion-icon>
-                    </label>
-                </div>
+                      </label>
+                    </form>
+                  </div>
 
                 <div class="user">
                     <img src="/assets/imgs/customer01.jpg" alt="">
@@ -150,94 +152,31 @@
                                                 </td>
                                             </tr>
                                           <% }); %>
-                                    <% } %>
+                                    <% } else if (locals.results) { %>
+                                        <% results.forEach(item => { %>
+                                            <tr>
+                                                <td>
+                                                    <%= item.product_name %>
+                                                </td>
+                                                <td>
+                                                    <%= item.product_key %>
+                                                </td>
+                                                <td>
+                                                    <%= item.category %>
+                                                </td>
+                                                <td>
+                                                    <%= item.specification %>
+                                                </td>
+                                                <td>
+                                                    <%= item.createdAt %>
+                                                </td>
+                                            </tr>
+                                        <% }); }%>
                                 </td>
                             </tr>
-                          
                         </tbody>
                     </table>
                 </div>
-
-                <!-- ================= New Customers ================ -->
-                <!-- <div class="recentCustomers">
-                    <div class="cardHeader">
-                        <h2>Recent Customers</h2>
-                    </div>
-
-                    <table>
-                        <tr>
-                            <td width="60px">
-                                <div class="imgBx"><img src="/assets/imgs/customer02.jpg" alt=""></div>
-                            </td>
-                            <td>
-                                <h4>David <br> <span>Italy</span></h4>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td width="60px">
-                                <div class="imgBx"><img src="/assets/imgs/customer01.jpg" alt=""></div>
-                            </td>
-                            <td>
-                                <h4>Amit <br> <span>India</span></h4>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td width="60px">
-                                <div class="imgBx"><img src="/assets/imgs/customer02.jpg" alt=""></div>
-                            </td>
-                            <td>
-                                <h4>David <br> <span>Italy</span></h4>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td width="60px">
-                                <div class="imgBx"><img src="/assets/imgs/customer01.jpg" alt=""></div>
-                            </td>
-                            <td>
-                                <h4>Amit <br> <span>India</span></h4>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td width="60px">
-                                <div class="imgBx"><img src="/assets/imgs/customer02.jpg" alt=""></div>
-                            </td>
-                            <td>
-                                <h4>David <br> <span>Italy</span></h4>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td width="60px">
-                                <div class="imgBx"><img src="/assets/imgs/customer01.jpg" alt=""></div>
-                            </td>
-                            <td>
-                                <h4>Amit <br> <span>India</span></h4>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td width="60px">
-                                <div class="imgBx"><img src="/assets/imgs/customer01.jpg" alt=""></div>
-                            </td>
-                            <td>
-                                <h4>David <br> <span>Italy</span></h4>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td width="60px">
-                                <div class="imgBx"><img src="/assets/imgs/customer02.jpg" alt=""></div>
-                            </td>
-                            <td>
-                                <h4>Amit <br> <span>India</span></h4>
-                            </td>
-                        </tr>
-                    </table>
-                </div> -->
             </div>
         </div>
     </div>
@@ -248,6 +187,7 @@
     <!-- ====== ionicons ======= -->
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </body>
 
 </html>
