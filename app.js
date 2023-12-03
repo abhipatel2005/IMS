@@ -1,10 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const User = require('./model/user.js');
+// const User = require('./model/user.js');
 const Products = require('./model/product.js');
 const Counter = require('./model/counter.js');
-const bcrypt = require('bcrypt');
+const session = require('express-session');
+const passport = require('passport');
+const passportLocalMongoose = require('passport-local-mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
 const mongo_user = process.env.MONGO_USER;
@@ -17,9 +19,13 @@ app.use(bodyParser.urlencoded({extended : true}));
 app.use(express.static("public"));
 app.set('view engine', 'ejs');
 
-//TODO: we will add the status of the product soon for now i have described there some specification about the product
-//TODO: we will also add the recent employee who place the order soon in the column of recent customers for that we need the email id and username maybe sometimes
-//TODO: we will also add the date wise search soon
+app.use(session({
+    secret: `${process.env.SECRET}`,
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 mongoose.connect(mongoURL, {
     useNewUrlParser: true,
@@ -31,6 +37,20 @@ mongoose.connect(mongoURL, {
 .catch((err) => {
     console.error("Error connecting to MongoDB Atlas:", err);
 });
+
+const userSchema = new mongoose.Schema({
+    username: String,
+    password: String
+});
+
+userSchema.plugin(passportLocalMongoose);
+
+const User = new mongoose.model("User", userSchema);
+
+passport.use(User.createStrategy());
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 app.get("/", (req,res) => {
     res.render("index.ejs");
@@ -47,42 +67,53 @@ app.get("/add", (req,res) => {
 });
 
 app.get('/get_data', async (req, res) => {
-  try {
-    const db = await Products();
-    
-    const count = await Products.countDocuments();
-    const currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0);
-
-    const today = await Products.find({ "createdAt": { $gt: currentDate } })
-    var productData = {};
+  if(req.isAuthenticated()){ 
+    try {
+      const db = await Products();
       
-    today.forEach((item) => {
-      const createdAtDate = new Date(item.createdAt).toLocaleDateString();
-      const count = productData[createdAtDate] ? productData[createdAtDate] : 0;
-      productData[createdAtDate] = count + 1;
-    });
-    const todayCount = today.length;
-    const recent = await Products.find().sort({ createdAt: -1 }).limit(10);
-    // console.log(productData);
-
-    const data = await Products.find();
-    
-    res.render('dashboard', { count, todayCount, recent });
-    
-  } catch (error) {
-    console.error('Error retrieving data:', error);
-    res.status(500).send('Internal Server Error');
+      const count = await Products.countDocuments();
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+  
+      const today = await Products.find({ "createdAt": { $gt: currentDate } })
+      var productData = {};
+        
+      today.forEach((item) => {
+        const createdAtDate = new Date(item.createdAt).toLocaleDateString();
+        const count = productData[createdAtDate] ? productData[createdAtDate] : 0;
+        productData[createdAtDate] = count + 1;
+      });
+      const todayCount = today.length;
+      const recent = await Products.find().sort({ createdAt: -1 }).limit(10);
+      console.log(productData);
+  
+      const data = await Products.find();
+      
+      res.render('dashboard', { count, todayCount, recent });
+      
+    } catch (error) {
+      console.error('Error retrieving data:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
 //route for getting data from mongodb to view all items
 app.get("/get_data/data", async(req,res) => {
-
-  const db = await Products();
-  const data = await Products.find().sort({ createdAt: -1 });
-
-  res.render("data", {data});
+  if(req.isAuthenticated()){
+    try{
+      const db = await Products();
+      const data = await Products.find().sort({ createdAt: -1 });
+    
+      res.render("data", {data});
+    } catch(err){
+      console.log(err);
+    }
+  } else {
+    res.redirect("/login");
+  }
 });
 
 //serach / retrieve data request for both dashboard and view all items pages
@@ -109,53 +140,56 @@ app.get('/get_data/:data?/search', async (req, res) => {
   }
 });
 
+app.get("/logout", (req,res) => {
+  req.logout(err => {
+    if(err){
+      console.log(err);
+    } else {
+      res.redirect("/");
+    }
+  });
+});
+
 // SignUp route
 app.post('/register', async (req, res) => {
-  const {email,password} = req.body;
-  
-  try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: 'Email already in use' });
+
+  User.register({username: req.body.username}, req.body.password, function(err,user){
+    if(err){
+      console.log(err);
+      res.redirect("/");
+    } else {
+      passport.authenticate("local")(req,res, function(err){
+      if(err){
+        console.log(err);
+        return res.status(500).send("Internal Server Error");
+      } else {
+        res.redirect("/get_data");
+      }
+      });
     }
-    
-    const saltRounds = 10; 
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    
-    const user = new User({ email, password:hashedPassword });
-    console.log(hashedPassword);
-    
-    await user.save();
-    res.render("login");
-    // res.json({ message: 'User created successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'An error occurred' });
-  }
+  });
 });
 
 // Login route
 app.post('/login', async (req, res) => {
-  
-  const { email, password } = req.body;
-  
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid Email' });
+  const user = new User({
+    username:req.body.username,
+    password:req.body.password
+  });
+
+  req.login(user, function(err){
+    if(err){
+        console.log(err);
+    } else {
+      passport.authenticate("local")(req,res, function(err){
+        if(err){
+          console.log(err);
+        } else {
+          res.redirect("/get_data");
+        }
+      });
     }
-    
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Invalid Password' });
-    }
-    
-    // res.json({ message: 'User logged /in successfully' });
-    res.redirect("/get_data");
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'An error occurred' });
-  }
+  })
 });
 
 //function for product key generation

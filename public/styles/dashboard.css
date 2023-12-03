@@ -264,7 +264,7 @@ body {
   width: 100%;
   padding: 20px;
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 2.5fr 1fr;
   grid-gap: 30px;
   /* margin-top: 10px; */
 }
@@ -284,6 +284,7 @@ body {
   justify-content: space-between;
   align-items: flex-start;
 }
+
 .cardHeader h2 {
   font-weight: 600;
   color: var(--blue);
@@ -323,7 +324,7 @@ body {
   text-align: end;
 }
 .details .recentOrders table tr td:nth-child(2) {
-  text-align: end;
+  text-align: center;
 }
 .details .recentOrders table tr td:nth-child(3) {
   text-align: center;
@@ -436,6 +437,20 @@ body {
   .status.inProgress {
     white-space: nowrap;
   }
+  .navigation {
+    left: 0px;
+  }
+  .navigation.active {
+    width: 300px;
+    left: 0;
+  }
+  .main {
+    width: 100%;
+    left: 80px;
+  }
+  .main.active {
+    left: 300px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -468,19 +483,33 @@ body {
   }
 }
 
-#toggleButton {
-  width: 80px;
-  height: 40px;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 16px;
+/* table, tr, td, tbody>tr>td>tr>td{
+  text-align: left;
+} */
+/* transitions*/
+@keyframes colorStrip {
+  0% {
+    left: 100%;
+  }
+  30%{
+    left:50%;
+  }
+  100% {
+    left: -100%;
+  }
 }
 
-.off {
-  background-color: #ccc;
-  color: black;
+body::before {
+  content: '';
+  position: fixed;
+  z-index:2;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, #2a2185 25%,#685ed3 25%, #9992e4 25%, white 50%);
+  background-size: 200% 100%;
+  animation: colorStrip 0.7s linear forwards;
 }
-table, tr, td, tbody>tr>td>tr>td{
-  text-align: left;
-}
+
+/* =============== Dark Mode Styles ============== */

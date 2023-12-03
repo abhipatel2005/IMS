@@ -20,21 +20,4 @@ toggle.onclick = function () {
   main.classList.toggle("active");
 };
 
-
-//search js
-  // $(document).ready(function () {
-  //   $('#searchInput').on('input', function () {
-  //     const query = $(this).val();
-
-  //     $.ajax({
-  //       url: `/get_data/data/search?query=${query}`,
-  //       method: 'GET',
-  //       success: function (data) {
-  //         $('#searchResults').html(data);
-  //       },
-  //       error: function (error) {
-  //         console.error('Error fetching search results:', error);
-  //       },
-  //     });
-  //   });
-  // });
+//dark mode
