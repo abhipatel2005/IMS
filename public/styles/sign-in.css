@@ -58,17 +58,32 @@ body {
 }
 
 #toggleButton {
-  width: 80px;
-  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
   border: none;
-  border-radius: 20px;
+  border-radius: 15px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 18px;
+}
+
+.change_icon{
+  display: none;
 }
 
 .off {
   background-color: #ccc;
-  color: black;
+  transform: rotate(90deg);
+  transition: all 0.5s;
+}
+
+.on {
+  background-color: #685ed3;
+  color:white;
+  transform: rotate(-90deg);
+  transition:all 0.5s;
 }
 
 @keyframes colorStrip {
@@ -86,7 +101,7 @@ body {
 body::before {
   content: '';
   position: fixed;
-  z-index: 2;
+  z-index: 3;
   top: 0;
   left: 0;
   width: 100%;

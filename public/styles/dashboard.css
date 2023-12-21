@@ -27,6 +27,10 @@ body {
   width: 100%;
 }
 
+h2{
+  color:var(--blue);
+}
+
 /* =============== Navigation ================ */
 .navigation {
   position: fixed;
@@ -49,8 +53,8 @@ body {
 }
 
 .navigation ul li {
-  position: relative;
-  width: 100%;
+  /* position: relative; */
+  /* width: 100%; */
   list-style: none;
   border-top-left-radius: 30px;
   border-bottom-left-radius: 30px;
@@ -62,13 +66,12 @@ body {
 }
 
 .navigation ul li:nth-child(1) {
-  margin-bottom: 40px;
+  /* margin-bottom: 40px; */
   pointer-events: none;
 }
 
 .navigation ul li a {
-  position: relative;
-  display: block;
+  /* position: relative; */
   width: 100%;
   display: flex;
   text-decoration: none;
@@ -141,6 +144,19 @@ body {
 .main.active {
   width: calc(100% - 80px);
   left: 80px;
+}
+
+.toggle_transition{
+  transform: translate(220px);
+  transition: all 0.4s ease-in-out;
+}
+
+.close_icon{
+  display: none;
+}
+
+.open_icon{
+  display: block;
 }
 
 .topbar {
@@ -290,7 +306,7 @@ body {
   color: var(--blue);
 }
 .cardHeader .btn {
-  position: relative;
+  /* position: relative; */
   padding: 5px 10px;
   background: var(--blue);
   text-decoration: none;
@@ -411,9 +427,9 @@ body {
   .navigation {
     left: -300px;
   }
-  .navigation.active {
+  .navigation .active {
     width: 300px;
-    left: 0;
+    left: 0px;
   }
   .main {
     width: 100%;
@@ -466,14 +482,14 @@ body {
   .navigation {
     width: 100%;
     left: -100%;
-    z-index: 1000;
+    z-index: 10;
   }
   .navigation.active {
-    width: 100%;
+    width: 50%;
     left: 0;
   }
   .toggle {
-    z-index: 10001;
+    z-index: 10;
   }
   .main.active .toggle {
     color: #fff;
@@ -502,7 +518,7 @@ body {
 body::before {
   content: '';
   position: fixed;
-  z-index:2;
+  z-index:5;
   top: 0;
   left: 0;
   width: 100%;

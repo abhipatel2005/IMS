@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const pdfkit = require('pdfkit');
 // const User = require('./model/user.js');
 const Products = require('./model/product.js');
 const Counter = require('./model/counter.js');
@@ -58,19 +59,23 @@ app.get("/", (req,res) => {
 app.get("/login", (req,res) => {
     res.render("login.ejs");
 });
-app.get('/dashboard', (req, res) => {
-      res.render("dashboard.ejs");
-});
+// app.get('/dashboard', (req, res) => {
+//       res.render("dashboard.ejs");
+// });
 
 app.get("/add", (req,res) => {
-  res.render("add.ejs");
+  res.render("add_2.ejs");
 });
-
+//temp route to check
+app.get("/dashboard", (req, res) => {
+  res.render("new_dashboard.ejs")
+})
 app.get('/get_data', async (req, res) => {
   if(req.isAuthenticated()){ 
     try {
       const db = await Products();
-      
+      const userData = await User.find();
+
       const count = await Products.countDocuments();
       const currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
@@ -88,11 +93,247 @@ app.get('/get_data', async (req, res) => {
       console.log(productData);
   
       const data = await Products.find();
-      
-      res.render('dashboard', { count, todayCount, recent });
+      res.render('new_dashboard', { count, todayCount, recent, userData });
       
     } catch (error) {
       console.error('Error retrieving data:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+//weekly report webpage just to check;
+app.get('/get_data/weekly', async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      // Retrieve data from the Products collection
+      const productData = await Products.find();
+
+      // Retrieve data from the User collection
+      // const userData = await User.find();
+
+      // const count = await Products.countDocuments();
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+
+      // Calculate the start and end dates of the current week
+      const startOfWeek = new Date(currentDate);
+      startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); // Set to the first day of the week (Sunday)
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6); // Set to the last day of the week (Saturday)
+
+      // Retrieve data for the current week
+      const currentWeekData = await Products.find({
+        "createdAt": { $gte: startOfWeek, $lte: endOfWeek }
+      }).sort({createdAt: -1});
+
+      // const count = currentWeekData.countDocuments();
+
+      // Calculate today's count based on currentWeekData
+      const todayCount = currentWeekData.filter(item => {
+        const createdAtDate = new Date(item.createdAt).toLocaleDateString();
+        const todayDate = currentDate.toLocaleDateString();
+        return createdAtDate === todayDate;
+      }).length;
+
+      // Retrieve recent data
+      const recent = await Products.find().sort({ createdAt: -1 }).limit(10);
+
+      // console.log(currentWeekData);
+
+      res.render('weekly', {todayCount, recent, productData, currentWeekData });
+
+    } catch (error) {
+      console.error('Error retrieving data:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
+//to generate the data on monthly basis
+app.get('/get_data/monthly_data', async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      // Retrieve data from the Products collection
+      const productData = await Products.find();
+
+      const count = await Products.countDocuments();
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+
+      // Calculate the start and end dates of the current month
+      const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+      // Retrieve data for the current month
+      const currentMonthData = await Products.find({
+        "createdAt": { $gte: startOfMonth, $lte: endOfMonth }
+      }).sort({ createdAt: -1 });
+
+      // console.log(currentMonthData);
+
+      res.render('monthly', {currentMonthData});
+
+    } catch (error) {
+      console.error('Error retrieving data:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
+
+//to generate pdf reports weekly
+app.get('/get_data/weekly-pdf-report', async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+
+      const startOfWeek = new Date(currentDate);
+      startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); // Set to the first day of the week (Sunday)
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+      // Fetch data from MongoDB
+      const currentWeekData = await Products.find({
+        "createdAt": { $gte: startOfWeek, $lte: endOfWeek }
+      });
+      // Create a PDF document
+      const doc = new pdfkit();
+      const filename = 'weekly_report.pdf';
+
+      // Set response headers for PDF
+      res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+      res.setHeader('Content-Type', 'application/pdf');
+
+      // Pipe the PDF directly to the response
+      doc.pipe(res);
+
+      // PDF content
+      doc.text('Weekly Report\n\n');
+
+      // Loop through the retrieved data and add it to the PDF dynamically
+      currentWeekData.forEach((item, index) => {
+        const itemObject = item.toObject(); // Convert Mongoose document to plain JavaScript object
+        Object.entries(itemObject).forEach(([key, value]) => {
+          doc.text(`${key}: ${value}`);
+        });
+        doc.text('\n');
+      });
+
+      // Finalize and end the PDF stream
+      doc.end();
+
+    } catch (error) {
+      console.error('Error generating PDF report:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
+//monthly report generation from last month's first date to current date
+app.get('/get_data/pdf-report-last-month', async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+
+      // Calculate the first day of the last month
+      const firstDayOfLastMonth = new Date(currentDate);
+      firstDayOfLastMonth.setMonth(firstDayOfLastMonth.getMonth() - 1);
+      firstDayOfLastMonth.setDate(1);
+
+      // Fetch data from MongoDB for the last month
+      const monthlyData = await Products.find({
+        "createdAt": { $gte: firstDayOfLastMonth, $lt: currentDate }
+      });
+
+      // Create a PDF document
+      const doc = new pdfkit();
+      const filename = 'monthly_report.pdf';
+
+      // Set response headers for PDF
+      res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+      res.setHeader('Content-Type', 'application/pdf');
+
+      // Pipe the PDF directly to the response
+      doc.pipe(res);
+
+      // PDF content
+      doc.text('Monthly Report\n\n');
+
+      // Loop through the retrieved data and add it to the PDF dynamically
+      monthlyData.forEach((item, index) => {
+        const itemObject = item.toObject(); // Convert Mongoose document to plain JavaScript object
+        Object.entries(itemObject).forEach(([key, value]) => {
+          doc.text(`${key}: ${value}`);
+        });
+        doc.text('\n');
+      });
+
+      // Finalize and end the PDF stream
+      doc.end();
+
+    } catch (error) {
+      console.error('Error generating PDF report:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
+//current month data generation;
+app.get('/get_data/monthly-pdf-report', async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+
+      // Calculate the start and end dates of the current month
+      const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+      // Retrieve data for the current month
+      const currentMonthData = await Products.find({
+        "createdAt": { $gte: startOfMonth, $lte: endOfMonth }
+      });
+
+      // Create a PDF document
+      const doc = new pdfkit();
+      const filename = 'current_month_report.pdf';
+
+      // Set response headers for PDF
+      res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+      res.setHeader('Content-Type', 'application/pdf');
+
+      // Pipe the PDF directly to the response
+      doc.pipe(res);
+
+      // PDF content
+      doc.text('Current Month Report\n\n');
+
+      // Loop through the retrieved data and add it to the PDF dynamically
+      currentMonthData.forEach((item, index) => {
+        doc.text(`${index + 1}. Product Name: ${item.product_name}`);
+        doc.text(`   Product Key: ${item.product_key}`);
+        doc.text(`   Department: ${item.department}`);
+        doc.text(`   Category: ${item.category}`);
+        doc.text(`   Specification: ${item.specification}`);
+        doc.text(`   Date of order : ${item.createdAt}\n\n`);
+      });
+      // Finalize and end the PDF stream
+      doc.end();
+
+    } catch (error) {
+      console.error('Error generating PDF report:', error);
       res.status(500).send('Internal Server Error');
     }
   } else {
@@ -137,6 +378,22 @@ app.get('/get_data/:data?/search', async (req, res) => {
   } catch (error) {
     console.error('Error searching in MongoDB:', error);
     res.status(500).send('Internal Server Error');
+  }
+});
+//know your customers
+app.get("/customers", async (req,res) => {
+  if(req.isAuthenticated()){
+    try{
+      const db = await User();
+      const customers = await User.find().sort({ createdAt: -1 });
+    
+      res.render("customer", {customers});
+
+    } catch(err){
+      console.log(err);
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 

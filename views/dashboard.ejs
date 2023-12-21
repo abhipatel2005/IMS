@@ -78,11 +78,9 @@
 
                         <tbody>
                             <tr>
-                                <td>
                                     <% if(locals.recent){ %>
 
                                         <% recent.forEach(item => { %>
-                                            <tr>
                                                 <td>
                                                     <%= item.product_name %>
                                                 </td>
@@ -99,7 +97,7 @@
                                           <% }); %>
 
                                     <% } %>
-                                </td>
+                                <!-- </td> -->
                             </tr>
                           
                         </tbody>
@@ -113,13 +111,15 @@
                     </div>
 
                     <table>
+                        <% userData.forEach(user => { %>
                         <tr>
                             <td width="60px">
                                 <div class="imgBx"><img src="assets/imgs/customer02.jpg" alt=""></div>
                             </td>
                             <td>
-                                <h4>David <br> <span>Italy</span></h4>
+                                <h4><%= user.username %> <br> <span>Italy</span></h4>
                             </td>
+                            <% }); %>
                         </tr>
 
                         <tr>
