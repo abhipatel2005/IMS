@@ -90,7 +90,7 @@ app.get('/get_data', async (req, res) => {
       });
       const todayCount = today.length;
       const recent = await Products.find().sort({ createdAt: -1 }).limit(10);
-      console.log(productData);
+      // console.log(productData);
   
       const data = await Products.find();
       res.render('new_dashboard', { count, todayCount, recent, userData });
@@ -113,7 +113,6 @@ app.get('/get_data/weekly', async (req, res) => {
       // Retrieve data from the User collection
       // const userData = await User.find();
 
-      // const count = await Products.countDocuments();
       const currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
 
@@ -128,7 +127,7 @@ app.get('/get_data/weekly', async (req, res) => {
         "createdAt": { $gte: startOfWeek, $lte: endOfWeek }
       }).sort({createdAt: -1});
 
-      // const count = currentWeekData.countDocuments();
+      const count = currentWeekData.length;
 
       // Calculate today's count based on currentWeekData
       const todayCount = currentWeekData.filter(item => {
@@ -142,7 +141,7 @@ app.get('/get_data/weekly', async (req, res) => {
 
       // console.log(currentWeekData);
 
-      res.render('weekly', {todayCount, recent, productData, currentWeekData });
+      res.render('weekly', {count, productData, currentWeekData });
 
     } catch (error) {
       console.error('Error retrieving data:', error);
@@ -154,13 +153,12 @@ app.get('/get_data/weekly', async (req, res) => {
 });
 
 //to generate the data on monthly basis
-app.get('/get_data/monthly_data', async (req, res) => {
+app.get('/get_data/monthly', async (req, res) => {
   if (req.isAuthenticated()) {
     try {
       // Retrieve data from the Products collection
       const productData = await Products.find();
 
-      const count = await Products.countDocuments();
       const currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
 
@@ -172,10 +170,10 @@ app.get('/get_data/monthly_data', async (req, res) => {
       const currentMonthData = await Products.find({
         "createdAt": { $gte: startOfMonth, $lte: endOfMonth }
       }).sort({ createdAt: -1 });
-
+      const count = currentMonthData.length;
       // console.log(currentMonthData);
 
-      res.render('monthly', {currentMonthData});
+      res.render('monthly', {currentMonthData, count});
 
     } catch (error) {
       console.error('Error retrieving data:', error);
@@ -220,7 +218,7 @@ app.get('/get_data/weekly-pdf-report', async (req, res) => {
       // Loop through the retrieved data and add it to the PDF dynamically
       currentWeekData.forEach((item, index) => {
         const itemObject = item.toObject(); // Convert Mongoose document to plain JavaScript object
-        Object.entries(itemObject).forEach(([key, value]) => {
+        Object.entries(itemObject).forEach(([key, value],index) => {
           doc.text(`${key}: ${value}`);
         });
         doc.text('\n');
@@ -347,8 +345,9 @@ app.get("/get_data/data", async(req,res) => {
     try{
       const db = await Products();
       const data = await Products.find().sort({ createdAt: -1 });
-    
-      res.render("data", {data});
+      const count = await Products.countDocuments();
+
+      res.render("data_2", {data, count});
     } catch(err){
       console.log(err);
     }
@@ -373,7 +372,7 @@ app.get('/get_data/:data?/search', async (req, res) => {
       ]
     });
 
-    console.log(results);
+    // console.log(results);
     res.render('data', { results });
   } catch (error) {
     console.error('Error searching in MongoDB:', error);

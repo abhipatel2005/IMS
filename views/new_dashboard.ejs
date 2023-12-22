@@ -15,66 +15,49 @@
   </div>
       <!-- <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas> -->
 
-      <div class="row row-cols-1 row-cols-md-2 g-4 m-0.5 mb-4">
-        <div class="col">
-          <div class="card" style="max-width: 540px;">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <!-- <img src="..." class="img-fluid rounded-start" alt="..."> -->
-              </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                  <h3 class="card-title">Today's Order</h3>
-                </div>
+      <div class="container text-center">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 mb-3">
+
+          <div class="col">
+            <div class="card text-bg-light bg-light">
+              <!-- <div class="card-header">Today's Order</div> -->
+              <div class="card-body">
+                <h5 class="card-title">Today's Order(s)</h5>
+                <p class="card-text display-4 fw-semibold text-primary-emphasis"><%= todayCount %></p>
               </div>
             </div>
           </div>
-        </div>
-        <div class="col">
-          <div class="card" style="max-width: 540px;">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <!-- <img src="..." class="img-fluid rounded-start" alt="..."> -->
-              </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                  <h3 class="card-title">Total Orders</h3>
-                </div>
+
+          <div class="col">
+            <div class="card text-bg-light bg-light">
+              <!-- <div class="card-header">Total Orders</div> -->
+              <div class="card-body">
+                <h5 class="card-title">Total Orders</h5>
+                <p class="card-text display-4 text-primary-emphasis fw-semibold"><%= count %></p>
               </div>
             </div>
           </div>
-        </div>
-        <div class="col">
-          <div class="card" style="max-width: 540px;">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <!-- <img src="..." class="img-fluid rounded-start" alt="..."> -->
-              </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                  <h3 class="card-title">Approved</h3>
-                </div>
+
+          <div class="col">
+            <div class="card text-bg-light bg-light">
+              <!-- <div class="card-header">Pending</div> -->
+              <div class="card-body">
+                <h5 class="card-title">Pending</h5>
+                <p class="card-text display-4 text-primary-emphasis fw-semibold">20</p>
+            </div>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="card text-bg-light bg-light">
+              <!-- <div class="card-header">Accepted</div> -->
+              <div class="card-body">
+                <h5 class="card-title">Accepted</h5>
+                <p class="card-text display-4 text-primary-emphasis fw-semibold">20</p>
               </div>
             </div>
           </div>
-        </div>
-        <div class="col">
-          <div class="card" style="max-width: 540px;">
-            <div class="row g-0">
-              <div class="col-md-4">
-                <!-- <img src="..." class="img-fluid rounded-start" alt="..."> -->
-              </div>
-              <div class="col-md-8">
-                <div class="card-body">
-                  <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                  <h3 class="card-title">Pending</h3>
-                </div>
-              </div>
-            </div>
-          </div>
+
         </div>
       </div>
 
@@ -98,7 +81,7 @@
               <td><%=item.product_key %></td>
               <td><%=item.category %></td>
               <td><%=item.specification %></td>
-              <td>soon</td>
+              <td><%= item.department %></td>
             </tr>
             <% }); %>
             <% } %>
