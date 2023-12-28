@@ -64,7 +64,11 @@ app.get("/login", (req,res) => {
 // });
 
 app.get("/add", (req,res) => {
-  res.render("add_2.ejs");
+  if(req.isAuthenticated()){
+    res.render("add_2.ejs");
+  } else {
+    res.redirect("/login");
+  }
 });
 //temp route to check
 app.get("/dashboard", (req, res) => {
@@ -73,6 +77,7 @@ app.get("/dashboard", (req, res) => {
 app.get('/get_data', async (req, res) => {
   if(req.isAuthenticated()){ 
     try {
+      const username = req.user.username;
       const db = await Products();
       const userData = await User.find();
 
@@ -81,7 +86,7 @@ app.get('/get_data', async (req, res) => {
       currentDate.setHours(0, 0, 0, 0);
   
       const today = await Products.find({ "createdAt": { $gt: currentDate } })
-      var productData = {};
+      // var productData = {};
         
       today.forEach((item) => {
         const createdAtDate = new Date(item.createdAt).toLocaleDateString();
@@ -89,7 +94,7 @@ app.get('/get_data', async (req, res) => {
         productData[createdAtDate] = count + 1;
       });
       const todayCount = today.length;
-      const recent = await Products.find().sort({ createdAt: -1 }).limit(10);
+      const recent = await Products.find({username}).sort({ createdAt: -1 }).limit(10);
       // console.log(productData);
   
       const data = await Products.find();
@@ -104,11 +109,12 @@ app.get('/get_data', async (req, res) => {
   }
 });
 //weekly report webpage just to check;
-app.get('/get_data/weekly', async (req, res) => {
+app.get('/get_data/currentWeek', async (req, res) => {
   if (req.isAuthenticated()) {
     try {
+      const username = req.user.username;
       // Retrieve data from the Products collection
-      const productData = await Products.find();
+      const productData = await Products.find({});
 
       // Retrieve data from the User collection
       // const userData = await User.find();
@@ -118,14 +124,14 @@ app.get('/get_data/weekly', async (req, res) => {
 
       // Calculate the start and end dates of the current week
       const startOfWeek = new Date(currentDate);
-      startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); // Set to the first day of the week (Sunday)
+      startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Set to the first day of the week (Sunday)
       const endOfWeek = new Date(startOfWeek);
       endOfWeek.setDate(startOfWeek.getDate() + 6); // Set to the last day of the week (Saturday)
 
       // Retrieve data for the current week
       const currentWeekData = await Products.find({
         "createdAt": { $gte: startOfWeek, $lte: endOfWeek }
-      }).sort({createdAt: -1});
+      } && {username}).sort({createdAt: -1});
 
       const count = currentWeekData.length;
 
@@ -152,12 +158,61 @@ app.get('/get_data/weekly', async (req, res) => {
   }
 });
 
+//last week data
+app.get('/get_data/lastWeek', async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const username = req.user.username
+      // Retrieve data from the Products collection
+      const productData = await Products.find();
+
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+
+      // Calculate the start and end dates of the last week
+      const startOfLastWeek = new Date(currentDate);
+      startOfLastWeek.setDate(currentDate.getDate() - currentDate.getDay() - 6); // Set to the first day of the last week (Sunday)
+      const endOfLastWeek = new Date(startOfLastWeek);
+      endOfLastWeek.setDate(startOfLastWeek.getDate() + 6); 
+      
+      // Retrieve data for the last week
+      const lastWeekData = await Products.find({
+        "createdAt": { $gte: startOfLastWeek, $lte: endOfLastWeek }
+      } && {username}).sort({createdAt: -1});
+
+      const count = lastWeekData.length;
+
+      // Calculate today's count based on lastWeekData
+      const todayCount = lastWeekData.filter(item => {
+        const createdAtDate = new Date(item.createdAt).toLocaleDateString();
+        const todayDate = currentDate.toLocaleDateString();
+        return createdAtDate === todayDate;
+      }).length;
+
+      // Retrieve recent data
+      const recent = await Products.find().sort({ createdAt: -1 }).limit(10);
+
+      // console.log(currentWeekData);
+
+      res.render('lastWeek', {count, productData, lastWeekData });
+
+    } catch (error) {
+      console.error('Error retrieving data:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
 //to generate the data on monthly basis
 app.get('/get_data/monthly', async (req, res) => {
   if (req.isAuthenticated()) {
     try {
+      const username = req.user.username;
+
       // Retrieve data from the Products collection
-      const productData = await Products.find();
+      // const productData = await Products.find({});
 
       const currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
@@ -169,7 +224,7 @@ app.get('/get_data/monthly', async (req, res) => {
       // Retrieve data for the current month
       const currentMonthData = await Products.find({
         "createdAt": { $gte: startOfMonth, $lte: endOfMonth }
-      }).sort({ createdAt: -1 });
+      } && {username}).sort({ createdAt: -1 });
       const count = currentMonthData.length;
       // console.log(currentMonthData);
 
@@ -343,9 +398,11 @@ app.get('/get_data/monthly-pdf-report', async (req, res) => {
 app.get("/get_data/data", async(req,res) => {
   if(req.isAuthenticated()){
     try{
+      const username = req.user.username;
+
       const db = await Products();
-      const data = await Products.find().sort({ createdAt: -1 });
-      const count = await Products.countDocuments();
+      const data = await Products.find({username}).sort({ createdAt: -1 });
+      const count = await Products.countDocuments({username});
 
       res.render("data_2", {data, count});
     } catch(err){
@@ -401,7 +458,7 @@ app.get("/logout", (req,res) => {
     if(err){
       console.log(err);
     } else {
-      res.redirect("/");
+      res.redirect("/login");
     }
   });
 });
@@ -463,6 +520,7 @@ app.post("/submit", async(req, res) => {
     let department = req.body.department;
     let category = req.body.category;
     let specification = req.body.specification;
+    let username = req.user.username;
     
     const formattedDate = generateFormattedDate();
     let counter = await Counter.findOne({ _id: `counters_${formattedDate}` });
@@ -486,11 +544,11 @@ app.post("/submit", async(req, res) => {
         product_key,
         department,
         category,
-        specification
+        specification,
+        username
     });
 
     await newProduct.save();
-    console.log("Form submitted:", newProduct);
     res.render("success.ejs");
     // res.json({ message: "Form submitted successfully" });
 
