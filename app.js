@@ -41,7 +41,8 @@ mongoose.connect(mongoURL, {
 
 const userSchema = new mongoose.Schema({
     username: String,
-    password: String
+    password: String,
+    userRole: String
 });
 
 userSchema.plugin(passportLocalMongoose);
@@ -74,14 +75,14 @@ app.get("/add", (req,res) => {
 app.get("/dashboard", (req, res) => {
   res.render("new_dashboard.ejs")
 })
-app.get('/get_data', async (req, res) => {
-  if(req.isAuthenticated()){ 
+app.get('/get_data/user', async (req, res) => {
+  if(req.isAuthenticated() && req.user.userRole === 'user'){ 
     try {
       const username = req.user.username;
       const db = await Products();
       const userData = await User.find();
 
-      const count = await Products.countDocuments();
+      const count = await Products.countDocuments({username});
       const currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
   
@@ -466,7 +467,7 @@ app.get("/logout", (req,res) => {
 // SignUp route
 app.post('/register', async (req, res) => {
 
-  User.register({username: req.body.username}, req.body.password, function(err,user){
+  User.register({username: req.body.username, userRole: req.body.userRole}, req.body.password, function(err,user){
     if(err){
       console.log(err);
       res.redirect("/");
@@ -476,7 +477,7 @@ app.post('/register', async (req, res) => {
         console.log(err);
         return res.status(500).send("Internal Server Error");
       } else {
-        res.redirect("/get_data");
+        res.redirect("/login");
       }
       });
     }
@@ -487,7 +488,8 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
   const user = new User({
     username:req.body.username,
-    password:req.body.password
+    password:req.body.password,
+    userRole:req.body.userRole
   });
 
   req.login(user, function(err){
@@ -498,11 +500,59 @@ app.post('/login', async (req, res) => {
         if(err){
           console.log(err);
         } else {
-          res.redirect("/get_data");
+          if((req.body.userRole === req.user.userRole)){
+            if(req.body.userRole === 'user'){
+              res.redirect("/get_data/user");
+            }
+            else if(req.body.userRole === 'admin'){
+              res.redirect("/get_data/admin");
+            }
+            else{
+              res.json("Choose proper role");
+            }
+          }
+          else{
+            res.json("Choose proper role");
+          }
         }
       });
     }
   })
+});
+
+
+app.get("/get_data/admin", async(req,res) => {
+  if(req.isAuthenticated() && req.user.userRole === 'admin'){ 
+    try {
+      const username = req.user.username;
+      const db = await Products();
+      const userData = await User.find();
+
+      const count = await Products.countDocuments();
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+  
+      const today = await Products.find({ "createdAt": { $gt: currentDate } })
+      // var productData = {};
+        
+      today.forEach((item) => {
+        const createdAtDate = new Date(item.createdAt).toLocaleDateString();
+        const count = productData[createdAtDate] ? productData[createdAtDate] : 0;
+        productData[createdAtDate] = count + 1;
+      });
+      const todayCount = today.length;
+      const recent = await Products.find().sort({ createdAt: -1 }).limit(10);
+  
+      const data = await Products.find();
+      res.render('new_dashboard', { count, todayCount, recent, userData });
+      
+    } catch (error) {
+      console.error('Error retrieving data:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  } else {
+    res.redirect("/login");
+  }
 });
 
 //function for product key generation

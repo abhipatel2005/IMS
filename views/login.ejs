@@ -25,9 +25,9 @@
 
     <div class="position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
         <button id="toggleButton" class="off">
-            <ion-icon name="sunny" id="sunny" class=""></ion-icon>
-            <ion-icon name="moon" id="moon" class="change_icon"></ion-icon>
-        </button>
+          <ion-icon name="sunny" id="sunny" class=""></ion-icon>
+          <ion-icon name="moon" id="moon" class="change_icon"></ion-icon>
+      </button>
     </div>
 
     <main class="form-signin w-100 m-auto">
@@ -52,6 +52,18 @@
                 Remember me
                 </label>
             </div> -->
+
+            <div class="rounded border border-tertiary p-2 d-flex justify-content-center">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="userRole" id="inlineRadio1" value="user" checked>
+                    <label class="form-check-label" for="inlineRadio1">User</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="userRole" id="inlineRadio2" value="admin">
+                    <label class="form-check-label" for="inlineRadio2">Admin</label>
+                </div>
+            </div>
+            
             <button class="btn btn-primary w-100 py-2 mt-3" type="submit">Sign In</button>
             <a href="./login.ejs"></a>
             <p class="mt-5 mb-4 text-body-secondary">&copy; 2023- Reserved by GoG</p>

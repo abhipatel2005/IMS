@@ -25,6 +25,7 @@
     <link href="/styles/new_dashboard.css" rel="stylesheet">
   </head>
   <body data-bs-theme="light">
+    
     <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
       <symbol id="check2" viewBox="0 0 16 16">
         <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
@@ -91,7 +92,7 @@
   </symbol>
 </svg>
 
-<header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow H-100 rounded-3 m-2" data-bs-theme="dark">
+<header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow h-100" data-bs-theme="dark">
   <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white rounded-pill">Inventory Management!</a>
   <div class="navbar-search w-25" id="search">
     <form action="/get_data/search" method="get">
@@ -114,6 +115,10 @@
   <div id="navbarSearch" class="navbar-search w-100 collapse">
     <form action="/get_data/search" method="get">
       <input class="form-control w-100 border-1.5 border-light" style="--bs-border-opacity: .7;" type="text" placeholder="Search" aria-label="Search" name="search">
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="basic-addon1">&#128269;</span>
+        <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+      </div>
     </form>
   </div>
 </header>
@@ -159,12 +164,25 @@
                 Customers
               </a>
             </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
               <a class="nav-link d-flex align-items-center gap-2" href="#">
                 <svg class="bi"><use xlink:href="#graph-up"/></svg>
                 Reports
-              </a>
-            </li>
+              </a> -->
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Dropdown
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#">Action</a></li>
+                  <li><a class="dropdown-item" href="#">Another action</a></li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                </ul>
+              </li>
+            <!-- </li> -->
             <li class="nav-item">
               <a class="nav-link d-flex align-items-center gap-2" href="#">
                 <svg class="bi"><use xlink:href="#puzzle"/></svg>
