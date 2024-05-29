@@ -30,6 +30,7 @@
               <th scope="col">Category</th>
               <th scope="col">Specification</th>
               <th scope="col">Department</th>
+              <th scope="col">Date</th>
             </tr>
           </thead>
           <tbody>
@@ -41,6 +42,7 @@
               <td><%=item.category %></td>
               <td><%=item.specification %></td>
               <td><%= item.department %></td>
+              <td><%= item.createdAt.toDateString() %></td> <!--we can change the formate and even include time here based on requirement-->
             </tr>
             <% }); %>
             <% } %>
@@ -58,7 +60,7 @@
   function changeTheme() {
     let element = document.body;
     element.dataset.bsTheme = element.dataset.bsTheme == "light" ? "dark" : "light";
-}
+  }
 
   change.addEventListener("click", () => {
 
@@ -74,6 +76,17 @@
       change.classList.remove("on");
     }
   });
+
+  $(window).on('scroll', function () {
+
+    if( $('body').scrollTop() >= $('.navbar').position().top) {
+      $('.navbar').css("margin", "5px");
+      $('.navbar').css("border-radius", "10px");
+    } else {
+      $('.navbar').css("margin", "0px");
+      $('.navbar').css("border-radius", "0px");
+    }
+    });
 
 </script>
 </html>

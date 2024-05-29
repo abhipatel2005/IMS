@@ -87,24 +87,24 @@
             //     change.textContent = "Dark Off";
             // }
             
-    if(document.body.getAttribute("data-bs-theme") !== "light"){
-        // change.textContent = "On";
-        // change.innerHTML.fadeIn().animate({opacity:0.8});
-        // change_icon1.classList.toggle("change_icon");
-        change_icon1.classList.add("change_icon");
-        change_icon2.classList.remove("change_icon");
-        change.classList.add("on");
-    } else {
-        change_icon1.classList.remove("change_icon");
-        change_icon2.classList.add("change_icon");
-        change.classList.remove("on");
-    }
-        });
+            if(document.body.getAttribute("data-bs-theme") !== "light"){
+                // change.textContent = "On";
+                // change.innerHTML.fadeIn().animate({opacity:0.8});
+                // change_icon1.classList.toggle("change_icon");
+                change_icon1.classList.add("change_icon");
+                change_icon2.classList.remove("change_icon");
+                change.classList.add("on");
+            } else {
+                change_icon1.classList.remove("change_icon");
+                change_icon2.classList.add("change_icon");
+                change.classList.remove("on");
+            }
+            });
 
-        function changeTheme() {
-            let element = document.body;
-            element.dataset.bsTheme = element.dataset.bsTheme == "light" ? "dark" : "light";
-        }
+            function changeTheme() {
+                let element = document.body;
+                element.dataset.bsTheme = element.dataset.bsTheme == "light" ? "dark" : "light";
+            }
 
     </script>
   </body>

@@ -7,7 +7,7 @@
             <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
             <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
           </div>
-          <a type="button" href="/get_data/weekly-pdf-report" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+          <a type="button" href="/get_data/weekly-pdf-report" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" disabled="true">
             <!-- <i class="bi bi-file-earmark-arrow-down-fill"></i> -->
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-arrow-down" viewBox="0 0 16 16">
               <path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
@@ -58,7 +58,7 @@
   function changeTheme() {
     let element = document.body;
     element.dataset.bsTheme = element.dataset.bsTheme == "light" ? "dark" : "light";
-}
+  }
 
   change.addEventListener("click", () => {
 
@@ -74,6 +74,17 @@
       change.classList.remove("on");
     }
   });
+
+  $(window).on('scroll', function () {
+
+    if( $('body').scrollTop() >= $('.navbar').position().top) {
+      $('.navbar').css("margin", "5px");
+      $('.navbar').css("border-radius", "10px");
+    } else {
+      $('.navbar').css("margin", "0px");
+      $('.navbar').css("border-radius", "0px");
+    }
+    });
 
 </script>
 </html>

@@ -62,5 +62,15 @@
     }
   });
 
+  $(window).on('scroll', function () {
+
+    if( $('body').scrollTop() >= $('.navbar').position().top) {
+      $('.navbar').css("margin", "5px");
+      $('.navbar').css("border-radius", "10px");
+    } else {
+      $('.navbar').css("margin", "0px");
+      $('.navbar').css("border-radius", "0px");
+    }
+    });
 </script>
 </html>

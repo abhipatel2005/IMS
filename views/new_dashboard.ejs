@@ -19,7 +19,7 @@
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 mb-3">
 
           <div class="col">
-            <div class="card text-bg-light bg-light">
+            <div class="card text-bg-light bg-light min-vh-25">
               <!-- <div class="card-header">Today's Order</div> -->
               <div class="card-body">
                 <h5 class="card-title">Today's Order(s)</h5>
@@ -81,7 +81,7 @@
               <td><%=item.product_key %></td>
               <td><%=item.category %></td>
               <td><%=item.specification %></td>
-              <td><%= item.department %></td>
+              <td><%=item.department %></td>
             </tr>
             <% }); %>
             <% } %>
@@ -99,7 +99,7 @@
   function changeTheme() {
     let element = document.body;
     element.dataset.bsTheme = element.dataset.bsTheme == "light" ? "dark" : "light";
-}
+  }
 
   change.addEventListener("click", () => {
 
@@ -116,16 +116,16 @@
     }
   });
 
-$(window).on('scroll', function () {
+  $(window).on('scroll', function () {
 
-if( $('body').scrollTop() >= $('.navbar').position().top) {
-    $('.navbar').css("margin", "5px");
-    $('.navbar').css("border-radius", "10px");
-} else {
-    $('.navbar').css("margin", "0px");
-    $('.navbar').css("border-radius", "0px");
-}
-});
+    if( $('body').scrollTop() >= $('.navbar').position().top) {
+      $('.navbar').css("margin", "5px");
+      $('.navbar').css("border-radius", "10px");
+    } else {
+      $('.navbar').css("margin", "0px");
+      $('.navbar').css("border-radius", "0px");
+    }
+  });
 
 </script>
 </body>

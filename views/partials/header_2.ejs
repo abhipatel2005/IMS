@@ -93,18 +93,22 @@
 </svg>
 
 <header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow h-100" data-bs-theme="dark">
-  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white rounded-pill">Inventory Management!</a>
-  <div class="navbar-search w-25" id="search">
-    <form action="/get_data/search" method="get">
-        <input type="text" class="p-2 form-control border-1 border-light rounded-3" style="--bs-border-opacity: 0.6" placeholder="Search" name="search">
+  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white">Inventory Management!</a>
+  <div class="navbar-search w-25 hidden" id="search">
+    <form action="/get_data/search" method="get" class="d-flex">
+      <div class="input-group">
+        <span class="input-group-text" id="search"><i class="bi bi-search mb-2"></i></span>
+        <input type="text" class="form-control" placeholder="Search" aria-label="Username" aria-describedby="basic-addon1" name="search">
+      </div>
+      <!-- <input type="text" class="p-2 form-control border-1 border-light rounded-3" style="--bs-border-opacity: 0.6" placeholder="Search" name="search"> -->
     </form>
   </div>
   <ul class="navbar-nav flex-row d-md-none">
-    <!-- <li class="nav-item text-nowrap">
+    <li class="nav-item text-nowrap">
       <button class="nav-link px-3 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSearch" aria-controls="navbarSearch" aria-expanded="false" aria-label="Toggle search">
         <svg class="bi"><use xlink:href="#search"/></svg>
       </button>
-    </li> -->
+    </li>
     <li class="nav-item text-nowrap">
       <button class="nav-link px-3 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
         <svg class="bi"><use xlink:href="#list"/></svg>
@@ -114,11 +118,11 @@
 
   <div id="navbarSearch" class="navbar-search w-100 collapse">
     <form action="/get_data/search" method="get">
-      <input class="form-control w-100 border-1.5 border-light" style="--bs-border-opacity: .7;" type="text" placeholder="Search" aria-label="Search" name="search">
-      <div class="input-group mb-3">
-        <span class="input-group-text" id="basic-addon1">&#128269;</span>
-        <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+      <div class="input-group p-1">
+        <span class="input-group-text" id="search"><i class="bi bi-search mb-2"></i></span>
+        <input type="text" class="form-control" placeholder="Search" aria-label="Username" aria-describedby="basic-addon1" />
       </div>
+      <!-- <input class="form-control w-100 border-1.5 border-light" style="--bs-border-opacity: .7;" type="text" placeholder="Search" aria-label="Search" name="search"> -->
     </form>
   </div>
 </header>

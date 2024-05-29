@@ -4,7 +4,7 @@ const dropdown3 = document.getElementById('dropdown3');
 
 const optionsMap1 = {
   choose : ['Choose...'],
-  it_products: ['Choose...', 'Desktop Computers', 'Laptop Notebook', 'Computer Printers'],
+  it_products: ['Choose...', 'Desktop Computers', 'Laptop Notebook', 'Computer Printers', 'Tablet Computers'],
   furniture: ['Choose...', 'Class Room Desking', 'Excutive Table', 'Revolving chair'],
   stationary_items: ['Choose...', 'Diaries', 'Gel Pen'],
   electrical_appliance: ['Choose...', 'Lead Luminaire', 'MCCB'],
@@ -17,6 +17,7 @@ const optionsMap2 = {
   'Desktop Computers': ['Choose...', 'Dell Core i5', 'HP Core i5','Asus Core i5','Lenovo Core i5'],
   'Laptop Notebook': ['Choose...', 'RDP Core i5','Coconics Core i7','AXL Core i3'],
   'Computer Printers': ['Choose...', 'Lecpure Inject Printer','Hp 1212 Printer','BANDHARA Inject Printer'],
+  'Tablet Computers': ['Choose...', 'Samsung Tablet 4GB','IRA Tablet 2GB 32GB','Acer Tablet 2GB 32GB'],
   'Class Room Desking': ['Choose...', 'Duster', 'Chalk Box'],
   'Excutive Table': ['Choose...', 'ELIMS', 'Welfing'],
   'Revolving chair': ['Choose...', 'Faculty Chair', 'Lab Chair'],
