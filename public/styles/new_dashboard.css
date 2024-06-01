@@ -154,3 +154,12 @@
   transform: rotate(-90deg);
   transition:all 0.5s;
 }
+.search{
+  display: none;
+}
+/* search button media query */
+@media (min-width:768px){
+  .search{
+    display: block;
+  }
+}
