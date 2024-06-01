@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const pdfkit = require('pdfkit');
 // const User = require('./model/user.js');
 const Products = require('./model/product.js');
+const Customer = require('./model/customer.js');
 const Counter = require('./model/counter.js');
 const session = require('express-session');
 const passport = require('passport');
@@ -16,33 +17,33 @@ const mongoURL = `mongodb+srv://${mongo_user}:${mongo_pass}@cluster0.sgjxjjr.mon
 
 const app = express();
 const port = 3000;
-app.use(bodyParser.urlencoded({extended : true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.set('view engine', 'ejs');
 
 app.use(session({
-    secret: `${process.env.SECRET}`,
-    resave: false,
-    saveUninitialized: false
+  secret: `${process.env.SECRET}`,
+  resave: false,
+  saveUninitialized: false
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
 mongoose.connect(mongoURL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 })
-.then(() => {
+  .then(() => {
     console.log("Connected to MongoDB Atlas");
-})
-.catch((err) => {
+  })
+  .catch((err) => {
     console.error("Error connecting to MongoDB Atlas:", err);
-});
+  });
 
 const userSchema = new mongoose.Schema({
-    username: String,
-    password: String,
-    userRole: String
+  username: String,
+  password: String,
+  userRole: String
 });
 
 userSchema.plugin(passportLocalMongoose);
@@ -54,60 +55,67 @@ passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-app.get("/", (req,res) => {
-    res.render("index.ejs");
+app.get("/", (req, res) => {
+  res.render("index.ejs");
 });
-app.get("/login", (req,res) => {
-    res.render("login.ejs");
+app.get("/login", (req, res) => {
+  res.render("login.ejs");
 });
-// app.get('/dashboard', (req, res) => {
-//       res.render("dashboard.ejs");
-// });
 
-app.get("/add", (req,res) => {
-  if(req.isAuthenticated()){
+app.get("/add", (req, res) => {
+  if (req.isAuthenticated()) {
     res.render("add_2.ejs");
   } else {
     res.redirect("/login");
   }
 });
 
-//temp route to check
-app.get("/get_data", (req, res) => {
-  if(req.user.userRole === 'admin'){
-    res.redirect("/get_data/admin");
-  }
-  else{
-    res.redirect("/get_data/user");
+app.get("/add_customer", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render("add_customer.ejs");
+  } else {
+    res.redirect("/login");
   }
 });
 
+//temp route to check
+app.get("/dashboard", (req, res) => {
+  res.render("new_dashboard.ejs")
+});
+
 app.get('/get_data/user', async (req, res) => {
-  if(req.isAuthenticated() && req.user.userRole === 'user'){ 
+  if (req.isAuthenticated() && req.user.userRole === 'user') {
     try {
       const username = req.user.username;
       const db = await Products();
       const userData = await User.find();
 
-      const count = await Products.countDocuments({username});
+      const count = await Products.countDocuments({ username });
       const currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
-  
+
       const today = await Products.find({ "createdAt": { $gt: currentDate } })
       var productData = {};
-        
+
       today.forEach((item) => {
         const createdAtDate = new Date(item.createdAt).toLocaleDateString();
         const count = productData[createdAtDate] ? productData[createdAtDate] : 0;
         productData[createdAtDate] = count + 1;
       });
-      const todayCount = today.length;
-      const recent = await Products.find({username}).sort({ createdAt: -1 }).limit(10);
-      // console.log(productData);
-  
-      const data = await Products.find();
-      res.render('new_dashboard', { count, todayCount, recent, userData });
-      
+
+      const userOrders = today.filter((item) => item.username === username);
+      const todayCount = userOrders.length;
+
+      const recent = await Products.find({ username }).sort({ createdAt: -1 }).limit(10);
+      // const data = await Products.find();
+      const pending = await Products.find({ isApproved: false, username });
+      let pendingOrders = pending.length;
+
+      const approved = await Products.find({ isApproved: true, username });
+      let approvedOrders = approved.length;
+
+      res.render('new_dashboard', { count, todayCount, recent, userData, pendingOrders, approvedOrders, user: req.user });
+
     } catch (error) {
       console.error('Error retrieving data:', error);
       res.status(500).send('Internal Server Error');
@@ -136,29 +144,25 @@ app.get('/get_data/currentWeek', async (req, res) => {
       endOfWeek.setDate(startOfWeek.getDate() + 6); // Set to the last day of the week (Saturday)
 
       // Retrieve data for the current week
-      if(userRole === 'user'){
+      const currentWeekData = await Products.find({
+        "createdAt": { $gte: startOfWeek, $lte: endOfWeek }
+      } && { username }).sort({ createdAt: -1 });
 
-        const currentWeekData = await Products.find({
-          "createdAt": { $gte: startOfWeek, $lte: endOfWeek }
-        } && {username}).sort({createdAt: -1});
-        
-        const count = currentWeekData.length;
+      const count = currentWeekData.length;
 
-        res.render('weekly', {count, currentWeekData });
+      // Calculate today's count based on currentWeekData
+      const todayCount = currentWeekData.filter(item => {
+        const createdAtDate = new Date(item.createdAt).toLocaleDateString();
+        const todayDate = currentDate.toLocaleDateString();
+        return createdAtDate === todayDate;
+      }).length;
 
-      } else {
-        try{
-          const currentWeekData = await Products.find({
-            "createdAt": { $gte: startOfWeek, $lte: endOfWeek }
-          }).sort({createdAt: -1}); 
-  
-          const count = currentWeekData.length;
-  
-          res.render('weekly', {count, currentWeekData });
-        } catch(err){
-          res.json(err);
-        }
-      }
+      // Retrieve recent data
+      const recent = await Products.find().sort({ createdAt: -1 }).limit(10);
+
+      // console.log(currentWeekData);
+
+      res.render('weekly', { count, productData, currentWeekData });
 
     } catch (error) {
       console.error('Error retrieving data:', error);
@@ -186,27 +190,28 @@ app.get('/get_data/lastWeek', async (req, res) => {
       const startOfLastWeek = new Date(currentDate);
       startOfLastWeek.setDate(currentDate.getDate() - currentDate.getDay() - 6); // Set to the first day of the last week (Sunday)
       const endOfLastWeek = new Date(startOfLastWeek);
-      endOfLastWeek.setDate(startOfLastWeek.getDate() + 6); 
-      
-      // Retrieve data for the last week
-      if(userRole === 'user'){
+      endOfLastWeek.setDate(startOfLastWeek.getDate() + 6);
 
+      // Retrieve data for the last week
       const lastWeekData = await Products.find({
         "createdAt": { $gte: startOfLastWeek, $lte: endOfLastWeek }
-      } && {username}).sort({createdAt: -1});
+      } && { username }).sort({ createdAt: -1 });
 
       const count = lastWeekData.length;
 
-      res.render('lastWeek', {count, lastWeekData });
-      } else {
-        const lastWeekData = await Products.find({
-          "createdAt": { $gte: startOfLastWeek, $lte: endOfLastWeek }
-        }).sort({createdAt: -1});
-  
-        const count = lastWeekData.length;
-  
-        res.render('lastWeek', {count, lastWeekData });
-      }
+      // Calculate today's count based on lastWeekData
+      const todayCount = lastWeekData.filter(item => {
+        const createdAtDate = new Date(item.createdAt).toLocaleDateString();
+        const todayDate = currentDate.toLocaleDateString();
+        return createdAtDate === todayDate;
+      }).length;
+
+      // Retrieve recent data
+      const recent = await Products.find().sort({ createdAt: -1 }).limit(10);
+
+      // console.log(currentWeekData);
+
+      res.render('lastWeek', { count, productData, lastWeekData });
 
     } catch (error) {
       console.error('Error retrieving data:', error);
@@ -236,11 +241,11 @@ app.get('/get_data/monthly', async (req, res) => {
       // Retrieve data for the current month
       const currentMonthData = await Products.find({
         "createdAt": { $gte: startOfMonth, $lte: endOfMonth }
-      } && {username}).sort({ createdAt: -1 });
+      } && { username }).sort({ createdAt: -1 });
       const count = currentMonthData.length;
       // console.log(currentMonthData);
 
-      res.render('monthly', {currentMonthData, count});
+      res.render('monthly', { currentMonthData, count });
 
     } catch (error) {
       console.error('Error retrieving data:', error);
@@ -285,7 +290,7 @@ app.get('/get_data/weekly-pdf-report', async (req, res) => {
       // Loop through the retrieved data and add it to the PDF dynamically
       currentWeekData.forEach((item, index) => {
         const itemObject = item.toObject(); // Convert Mongoose document to plain JavaScript object
-        Object.entries(itemObject).forEach(([key, value],index) => {
+        Object.entries(itemObject).forEach(([key, value], index) => {
           doc.text(`${key}: ${value}`);
         });
         doc.text('\n');
@@ -407,27 +412,28 @@ app.get('/get_data/monthly-pdf-report', async (req, res) => {
 });
 
 //route for getting data from mongodb to view all items
-app.get("/get_data/data", async(req,res) => {
-  if(req.isAuthenticated()){
-    if(req.user.userRole === 'user'){
-    try{
+app.get("/get_data/data", async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
       const username = req.user.username;
 
-      const db = await Products();
-      const data = await Products.find({username}).sort({ createdAt: -1 });
-      const count = await Products.countDocuments({username});
+      if (req.user.userRole === 'admin') {
+        // Admin order page
+        const role = 'admin';
+        const db = await Products();
+        const data = await Products.find({ isApproved: false }).sort({ createdAt: -1 });
+        const count = await Products.countDocuments({ isApproved: false });
+        res.render("data_2", { data, count, role, user: req.user });
+      } else {
+        const db = await Products();
+        const data = await Products.find({ username }).sort({ createdAt: -1 });
+        const count = await Products.countDocuments({ username });
+        res.render("data_2", { data, count, user: req.user });
+      }
 
-      res.render("data_2", {data, count});
-    } catch(err){
+    } catch (err) {
       console.log(err);
     }
-  } else {
-      const db = await Products();
-      const data = await Products.find().sort({ createdAt: -1 });
-      const count = await Products.countDocuments();
-
-      res.render("data_2", {data, count});
-  }
   } else {
     res.redirect("/login");
   }
@@ -456,15 +462,17 @@ app.get('/get_data/:data?/search', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-//know your customers
-app.get("/customers", async (req,res) => {
-  if(req.isAuthenticated()){
-    try{
-      const db = await User();
-      const customers = await User.find({userRole: 'user'}).sort({ createdAt: -1 });
-      res.render("customer", {customers});
 
-    } catch(err){
+//know your customers
+app.get("/customers", async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const db = await User();
+      const customers = await Customer.find().sort({ createdAt: -1 });
+
+      res.render("customer", { customers, user: req.user });
+
+    } catch (err) {
       console.log(err);
     }
   } else {
@@ -472,9 +480,9 @@ app.get("/customers", async (req,res) => {
   }
 });
 
-app.get("/logout", (req,res) => {
+app.get("/logout", (req, res) => {
   req.logout(err => {
-    if(err){
+    if (err) {
       console.log(err);
     } else {
       res.redirect("/login");
@@ -482,22 +490,46 @@ app.get("/logout", (req,res) => {
   });
 });
 
+//customer add route
+app.post("/customer_submit", async (req, res) => {
+  try {
+    let username = req.body.username;
+    let phone = req.body.phone;
+    let email = req.body.email;
+    let address = req.body.address;
+
+    const newCustomer = new Customer({
+      username,
+      phone,
+      email,
+      address,
+    });
+
+    await newCustomer.save();
+    res.render("success.ejs", { user: req.user });
+    // res.json({ message: "Form submitted successfully" });
+  } catch (err) {
+    console.error("Error saving to MongoDB:", err);
+    res.render("failure.ejs");
+    // res.status(500).json({ error: "An error occurred" });
+  }
+});
+
 // SignUp route
 app.post('/register', async (req, res) => {
-
-  User.register({username: req.body.username, userRole: req.body.userRole}, req.body.password, function(err,user){
-    if(err){
+  User.register({ username: req.body.username, userRole: req.body.userRole }, req.body.password, function (err, user) {
+    if (err) {
       console.log(err);
       res.json(err.message);
       // res.redirect("/");
     } else {
-      passport.authenticate("local")(req,res, function(err){
-      if(err){
-        console.log(err);
-        return res.status(500).send("Internal Server Error");
-      } else {
-        res.redirect("/login");
-      }
+      passport.authenticate("local")(req, res, function (err) {
+        if (err) {
+          console.log(err);
+          return res.status(500).send("Internal Server Error");
+        } else {
+          res.redirect("/login");
+        }
       });
     }
   });
@@ -506,32 +538,33 @@ app.post('/register', async (req, res) => {
 // Login route
 app.post('/login', async (req, res) => {
   const user = new User({
-    username:req.body.username,
-    password:req.body.password,
-    userRole:req.body.userRole
+    username: req.body.username,
+    password: req.body.password,
+    userRole: req.body.userRole
   });
 
-  req.login(user, function(err){
-    if(err){
-        console.log(err);
+  userRole = req.user
+  req.login(user, function (err) {
+    if (err) {
+      console.log(err);
     } else {
-      passport.authenticate("local")(req,res, function(err){
-        if(err){
-          res.json(err);
+      passport.authenticate("local")(req, res, function (err) {
+        if (err) {
+          console.log(err);
         } else {
-          if((req.body.userRole === req.user.userRole)){
-            if(req.body.userRole === 'user'){
+          if ((req.body.userRole === req.user.userRole)) {
+            if (req.body.userRole === 'user') {
               res.redirect("/get_data/user");
             }
-            else if(req.body.userRole === 'admin'){
+            else if (req.body.userRole === 'admin') {
               res.redirect("/get_data/admin");
             }
-            else{
+            else {
               res.json("Choose proper role");
             }
           }
-          else{
-            res.json("Something went wrong");
+          else {
+            res.json("Choose proper role");
           }
         }
       });
@@ -540,8 +573,8 @@ app.post('/login', async (req, res) => {
 });
 
 
-app.get("/get_data/admin", async(req,res) => {
-  if(req.isAuthenticated() && req.user.userRole === 'admin'){ 
+app.get("/get_data/admin", async (req, res) => {
+  if (req.isAuthenticated() && req.user.userRole === 'admin') {
     try {
       const username = req.user.username;
       const db = await Products();
@@ -550,21 +583,26 @@ app.get("/get_data/admin", async(req,res) => {
       const count = await Products.countDocuments();
       const currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
-  
+
       const today = await Products.find({ "createdAt": { $gt: currentDate } })
-      var productData = {};
-        
+      // var productData = {};
+
       today.forEach((item) => {
         const createdAtDate = new Date(item.createdAt).toLocaleDateString();
-        const count = productData[createdAtDate] ? productData[createdAtDate] : 0;
-        productData[createdAtDate] = count + 1;
+        // const count = productData[createdAtDate] ? productData[createdAtDate] : 0;
+        // productData[createdAtDate] = count + 1;
       });
       const todayCount = today.length;
       const recent = await Products.find().sort({ createdAt: -1 }).limit(10);
-  
-      const data = await Products.find();
-      res.render('new_dashboard', { count, todayCount, recent, userData });
-      
+      // const data = await Products.find();
+      const pending = await Products.find({ isApproved: false });
+      const pendingOrders = pending.length;
+
+      const approved = await Products.find({ isApproved: true })
+      const approvedOrders = approved.length;
+
+      res.render('new_dashboard', { count, todayCount, recent, userData, pendingOrders, approvedOrders, user: req.user });
+
     } catch (error) {
       console.error('Error retrieving data:', error);
       res.status(500).send('Internal Server Error');
@@ -583,14 +621,14 @@ function generateFormattedDate() {
 }
 
 //Add items route
-app.post("/submit", async(req, res) => {
+app.post("/submit", async (req, res) => {
   try {
     let product_name = req.body.sub_category;
     let department = req.body.department;
     let category = req.body.category;
     let specification = req.body.specification;
     let username = req.user.username;
-    
+
     const formattedDate = generateFormattedDate();
     let counter = await Counter.findOne({ _id: `counters_${formattedDate}` });
 
@@ -606,25 +644,60 @@ app.post("/submit", async(req, res) => {
 
     await counter.save();
 
-    // console.log(product_name,product_key,department,category,specification);
-
     const newProduct = new Products({
-        product_name,
-        product_key,
-        department,
-        category,
-        specification,
-        username
+      product_name,
+      product_key,
+      department,
+      category,
+      specification,
+      username
     });
 
     await newProduct.save();
     res.render("success.ejs");
-    // res.json({ message: "Form submitted successfully" });
 
   } catch (err) {
-      console.error("Error saving to MongoDB:", err);
-      res.render("failure.ejs");
-      // res.status(500).json({ error: "An error occurred" });
+    console.error("Error saving to MongoDB:", err);
+    res.render("failure.ejs");
+  }
+});
+//approving products
+app.post('/approve_product/:productId', async (req, res) => {
+  const productId = req.params.productId;
+  try {
+    await Products.findByIdAndUpdate(productId, { isApproved: true });
+    // res.redirect('/get_data/data'); // Redirect back to admin panel
+    res.redirect("/get_data/data")
+  } catch (error) {
+    console.error('Error approving product:', error);
+    res.status(500).send('Error approving product');
+  }
+});
+
+//to delete the product
+app.delete('/decline_product/:productId', async (req, res) => {
+  const productId = req.params.productId;
+  try {
+    await Products.findByIdAndUpdate(productId, { isApproved: false });
+    res.json("Product declined successfully.");
+  } catch (error) {
+    console.error('Error declining product:', error);
+    res.status(500).send('Error declining product');
+  }
+});
+
+//user remove from database
+app.post('/delete_user/:userId', async (req, res) => {
+  const userId = req.params.userId;
+  const userRole = req.user.userRole;
+
+  try {
+    // Find the user by ID and remove them
+    await Customer.findByIdAndDelete(userId);
+    res.redirect("/customers");
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).send('Error deleting user');
   }
 });
 

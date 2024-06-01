@@ -1,41 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Placed</title>
-    <style>
-      body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        .container {
-            text-align: center;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        a {
-            text-decoration: none;
-            font-weight: bold;
-            text-decoration: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Placed</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    a {
+      text-decoration: none;
+      font-weight: bold;
+      text-decoration: none;
+    }
+  </style>
 </head>
+
 <body>
 
   <div class="container">
-    <h1>Order Placed Successfully</h1>
-    <p>You can find the more detail on dashboard. Thank You...!</p>
-    <button><a href="/add">Add Items</a></button>
-    <button><a href="/get_data">Dashboard</a></button>
+    <% if (locals.user && user.userRole==='admin' ) { %>
+      <h1>Customer added Successfully</h1>
+      <p>You can find the more detail on dashboard. Thank You...!</p>
+      <button><a href="/add_customer">Add Customer</a></button>
+      <button><a href="/customers">Customer Tab</a></button>
+      <% } else {%>
+        <h1>Order Placed Successfully</h1>
+        <p>You can find the more detail on dashboard. Thank You...!</p>
+        <button><a href="/add">Add Items</a></button>
+        <button><a href="/get_data/user">Dashboard</a></button>
+        <% } %>
   </div>
 
 </body>
+
 </html>
