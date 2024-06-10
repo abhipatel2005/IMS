@@ -1,7 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const pdfkit = require('pdfkit');
+const PDFDocument = require('pdfkit');
+const PDFDocumentWithTables = require('pdfkit-table');
+// const table = require('pdfkit-table');
 // const User = require('./model/user.js');
 const Products = require('./model/product.js');
 const Customer = require('./model/customer.js');
@@ -64,7 +66,7 @@ app.get("/login", (req, res) => {
 
 app.get("/add", (req, res) => {
   if (req.isAuthenticated()) {
-    res.render("add_2.ejs");
+    res.render("add_product.ejs");
   } else {
     res.redirect("/login");
   }
@@ -78,10 +80,6 @@ app.get("/add_customer", (req, res) => {
   }
 });
 
-//temp route to check
-app.get("/dashboard", (req, res) => {
-  res.render("new_dashboard.ejs")
-});
 
 app.get('/get_data/user', async (req, res) => {
   if (req.isAuthenticated() && req.user.userRole === 'user') {
@@ -114,7 +112,7 @@ app.get('/get_data/user', async (req, res) => {
       const approved = await Products.find({ isApproved: true, username });
       let approvedOrders = approved.length;
 
-      res.render('new_dashboard', { count, todayCount, recent, userData, pendingOrders, approvedOrders, user: req.user });
+      res.render('dashboard', { count, todayCount, recent, userData, pendingOrders, approvedOrders, user: req.user });
 
     } catch (error) {
       console.error('Error retrieving data:', error);
@@ -181,44 +179,6 @@ app.get('/get_data/currentWeek', async (req, res) => {
 //last week data
 app.get('/get_data/lastWeek', async (req, res) => {
   if (req.isAuthenticated()) {
-    // try {
-    //   const username = req.user.username;
-    //   const userRole = req.user.userRole;
-
-    //   const currentDate = new Date();
-    //   currentDate.setHours(0, 0, 0, 0);
-
-    //   // Calculate the start and end dates of the last week
-    //   const startOfLastWeek = new Date(currentDate);
-    //   startOfLastWeek.setDate(currentDate.getDate() - currentDate.getDay() - 6); // Set to the first day of the last week (Sunday)
-    //   const endOfLastWeek = new Date(startOfLastWeek);
-    //   endOfLastWeek.setDate(startOfLastWeek.getDate() + 6);
-
-    //   // Retrieve data for the last week
-    //   const lastWeekData = await Products.find({
-    //     "createdAt": { $gte: startOfLastWeek, $lte: endOfLastWeek }
-    //   } && { username }).sort({ createdAt: -1 });
-
-    //   const count = lastWeekData.length;
-
-    //   // Calculate today's count based on lastWeekData
-    //   const todayCount = lastWeekData.filter(item => {
-    //     const createdAtDate = new Date(item.createdAt).toLocaleDateString();
-    //     const todayDate = currentDate.toLocaleDateString();
-    //     return createdAtDate === todayDate;
-    //   }).length;
-
-    //   // Retrieve recent data
-    //   const recent = await Products.find().sort({ createdAt: -1 }).limit(10);
-
-    //   // console.log(currentWeekData);
-
-    //   res.render('lastWeek', { count, lastWeekData });
-
-    // } catch (error) {
-    //   console.error('Error retrieving data:', error);
-    //   res.status(500).send('Internal Server Error');
-    // }
     try {
       const username = req.user.username;
       let userRole = req.user.userRole;
@@ -291,8 +251,11 @@ app.get('/get_data/monthly', async (req, res) => {
 
 
 //to generate pdf reports weekly
-app.get('/get_data/weekly-pdf-report', async (req, res) => {
+app.get('/get_data/weekly-report', async (req, res) => {
   if (req.isAuthenticated()) {
+    const username = req.user.username;
+    const userRole = req.user.userRole;
+
     try {
       const currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
@@ -303,12 +266,20 @@ app.get('/get_data/weekly-pdf-report', async (req, res) => {
       endOfWeek.setDate(startOfWeek.getDate() + 6);
 
       // Fetch data from MongoDB
-      const currentWeekData = await Products.find({
-        "createdAt": { $gte: startOfWeek, $lte: endOfWeek }
-      });
-      // Create a PDF document
-      const doc = new pdfkit();
-      const filename = 'weekly_report.pdf';
+      let currentWeekAdminData, currentWeekUserData;
+      if (userRole === 'admin') {
+        currentWeekAdminData = await Products.find({
+          "createdAt": { $gte: startOfWeek, $lte: endOfWeek }
+        });
+      } else {
+        currentWeekAdminData = await Products.find({
+          "createdAt": { $gte: startOfWeek, $lte: endOfWeek },
+          username: username
+        });
+      }
+
+      let doc = new PDFDocumentWithTables({ size: 'A4' }); // Set page size to A4
+      let filename = 'weekly_report.pdf';
 
       // Set response headers for PDF
       res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
@@ -317,20 +288,33 @@ app.get('/get_data/weekly-pdf-report', async (req, res) => {
       // Pipe the PDF directly to the response
       doc.pipe(res);
 
-      // PDF content
-      doc.text('Weekly Report\n\n');
+      doc.fontSize(18) // Set font size to 18
+        .text('Weekly Report') // Center align text
+        .fontSize(12) // Reset font size to 12 for the rest of the document
+        .text('\n\n');
 
-      // Loop through the retrieved data and add it to the PDF dynamically
-      currentWeekData.forEach((item, index) => {
+      // Define table headers
+      let headers = ['Product Name', 'Product Key', 'Department', 'Category', 'Specification', 'Date of Order'];
+
+      // Prepare table data
+      let data = [];
+      (currentWeekAdminData || currentWeekUserData).forEach((item, index) => {
         const itemObject = item.toObject(); // Convert Mongoose document to plain JavaScript object
-        Object.entries(itemObject).forEach(([key, value], index) => {
-          doc.text(`${key}: ${value}`);
-        });
-        doc.text('\n');
+        let dateOfOrder = new Date(itemObject.createdAt);
+        let dateOnly = `${dateOfOrder.getDate()}-${dateOfOrder.getMonth() + 1}-${dateOfOrder.getFullYear()}`;
+        let row = [itemObject.product_name, itemObject.product_key, itemObject.department, itemObject.category, itemObject.specification, dateOnly];
+        data.push(row);
       });
+
+      // Create the table
+      doc.table({
+        headers: headers,
+        rows: data,
+      }, { top: 50, left: 0, bottom: 50 });
 
       // Finalize and end the PDF stream
       doc.end();
+
 
     } catch (error) {
       console.error('Error generating PDF report:', error);
@@ -341,97 +325,69 @@ app.get('/get_data/weekly-pdf-report', async (req, res) => {
   }
 });
 
-//monthly report generation from last month's first date to current date
-app.get('/get_data/pdf-report-last-month', async (req, res) => {
+//monthly report generation of this month
+app.get('/get_data/monthly-report', async (req, res) => {
   if (req.isAuthenticated()) {
+
+    const username = req.user.username;
+    const userRole = req.user.userRole;
+
     try {
-      const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0);
+      const today = new Date();
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 2); // First day of this month
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1); // Last day of this month
 
-      // Calculate the first day of the last month
-      const firstDayOfLastMonth = new Date(currentDate);
-      firstDayOfLastMonth.setMonth(firstDayOfLastMonth.getMonth() - 1);
-      firstDayOfLastMonth.setDate(1);
+      let monthlyAdminData, monthlyUserData, count;
+      if (userRole === 'admin') {
+        monthlyAdminData = await Products.find({
+          createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+        }).sort({ createdAt: -1 });
+        count = monthlyAdminData.length;
+      } else {
+        monthlyUserData = await Products.find({
+          createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+          username: username
+        }).sort({ createdAt: -1 });
+        count = monthlyUserData.length;
+      }
 
-      // Fetch data from MongoDB for the last month
-      const monthlyData = await Products.find({
-        "createdAt": { $gte: firstDayOfLastMonth, $lt: currentDate }
-      });
+      let doc = new PDFDocumentWithTables({ size: 'A4' });
+      let filename = 'monthly_report.pdf';
 
-      // Create a PDF document
-      const doc = new pdfkit();
-      const filename = 'monthly_report.pdf';
-
-      // Set response headers for PDF
       res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
       res.setHeader('Content-Type', 'application/pdf');
 
-      // Pipe the PDF directly to the response
       doc.pipe(res);
 
-      // PDF content
-      doc.text('Monthly Report\n\n');
+      //to get month adn year to add in title
+      let date = new Date();
+      let month = (date.getMonth() + 1).toString().padStart(2, '0');
+      let year = date.getFullYear();
+      let monthYear = `${month} ${year}`;
 
-      // Loop through the retrieved data and add it to the PDF dynamically
-      monthlyData.forEach((item, index) => {
+      doc.fontSize(18)
+        .text(`Monthly Report (${monthYear})`)
+        .fontSize(12)
+        .text('\n\n');
+
+      let headers = ['Product Name', 'Product Key', 'Department', 'Category', 'Specification', 'Date of Order'];
+
+      // Prepare table data
+      let data = [];
+      (monthlyAdminData || monthlyUserData).forEach((item, index) => {
         const itemObject = item.toObject(); // Convert Mongoose document to plain JavaScript object
-        Object.entries(itemObject).forEach(([key, value]) => {
-          doc.text(`${key}: ${value}`);
-        });
-        doc.text('\n');
+        let dateOfOrder = new Date(itemObject.createdAt);
+        let dateOnly = `${dateOfOrder.getDate()}-${dateOfOrder.getMonth() + 1}-${dateOfOrder.getFullYear()}`;
+        let row = [itemObject.product_name, itemObject.product_key, itemObject.department, itemObject.category, itemObject.specification, dateOnly];
+        data.push(row);
       });
 
-      // Finalize and end the PDF stream
-      doc.end();
+      // Create the table
+      doc.table({
+        headers: headers,
+        rows: data,
+      }, { top: 50, left: 0, bottom: 50 });
 
-    } catch (error) {
-      console.error('Error generating PDF report:', error);
-      res.status(500).send('Internal Server Error');
-    }
-  } else {
-    res.redirect("/login");
-  }
-});
-
-//current month data generation;
-app.get('/get_data/monthly-pdf-report', async (req, res) => {
-  if (req.isAuthenticated()) {
-    try {
-      const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0);
-
-      // Calculate the start and end dates of the current month
-      const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-      const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-
-      // Retrieve data for the current month
-      const currentMonthData = await Products.find({
-        "createdAt": { $gte: startOfMonth, $lte: endOfMonth }
-      });
-
-      // Create a PDF document
-      const doc = new pdfkit();
-      const filename = 'current_month_report.pdf';
-
-      // Set response headers for PDF
-      res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
-      res.setHeader('Content-Type', 'application/pdf');
-
-      // Pipe the PDF directly to the response
-      doc.pipe(res);
-
-      // PDF content
-      doc.text('Current Month Report\n\n');
-
-      // Loop through the retrieved data and add it to the PDF dynamically
-      currentMonthData.forEach((item, index) => {
-        doc.text(`${index + 1}. Product Name: ${item.product_name}`);
-        doc.text(`   Product Key: ${item.product_key}`);
-        doc.text(`   Department: ${item.department}`);
-        doc.text(`   Category: ${item.category}`);
-        doc.text(`   Specification: ${item.specification}`);
-        doc.text(`   Date of order : ${item.createdAt}\n\n`);
-      });
       // Finalize and end the PDF stream
       doc.end();
 
@@ -458,12 +414,12 @@ app.get("/get_data/data", async (req, res) => {
         const count = await Products.countDocuments({ isApproved: false });
         const approvedData = await Products.find({ isApproved: true }).sort({ createdAt: -1 });
         const countForApprovedData = await Products.find({ isApproved: true }).sort({ createdAt: -1 });
-        res.render("data_2", { data, count, role, approvedData, countForApprovedData, user: req.user });
+        res.render("orders", { data, count, role, approvedData, countForApprovedData, user: req.user });
       } else {
         const db = await Products();
         const data = await Products.find({ username }).sort({ createdAt: -1 });
         const count = await Products.countDocuments({ username });
-        res.render("data_2", { data, count, user: req.user });
+        res.render("orders", { data, count, user: req.user });
       }
 
     } catch (err) {
@@ -491,7 +447,7 @@ app.get('/get_data/:data?/search', async (req, res) => {
     });
 
     // console.log(results);
-    res.render('data', { results });
+    res.render('search', { results });
   } catch (error) {
     console.error('Error searching in MongoDB:', error);
     res.status(500).send('Internal Server Error');
@@ -636,7 +592,7 @@ app.get("/get_data/admin", async (req, res) => {
       const approved = await Products.find({ isApproved: true })
       const approvedOrders = approved.length;
 
-      res.render('new_dashboard', { count, todayCount, recent, userData, pendingOrders, approvedOrders, user: req.user });
+      res.render('dashboard', { count, todayCount, recent, userData, pendingOrders, approvedOrders, user: req.user });
 
     } catch (error) {
       console.error('Error retrieving data:', error);
