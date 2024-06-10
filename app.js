@@ -131,39 +131,44 @@ app.get('/get_data/currentWeek', async (req, res) => {
     try {
       const username = req.user.username;
       const userRole = req.user.userRole;
-      // Retrieve data from the Products collection
-      // const productData = await Products.find({});
 
-      const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0);
+      if (userRole === 'admin') {
+        try {
+          const today = new Date();
+          const startOfWeek = new Date(today);
+          startOfWeek.setHours(0, 0, 0, 0);
+          startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
 
-      // Calculate the start and end dates of the current week
-      const startOfWeek = new Date(currentDate);
-      startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Set to the first day of the week (Sunday)
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6); // Set to the last day of the week (Saturday)
+          const weeklyData = await Products.find({
+            createdAt: { $gte: startOfWeek, $lte: today }
+          }).sort({ createdAt: -1 });
+          const count = weeklyData.length;
 
-      // Retrieve data for the current week
-      const currentWeekData = await Products.find({
-        "createdAt": { $gte: startOfWeek, $lte: endOfWeek }
-      } && { username }).sort({ createdAt: -1 });
+          res.render('weekly', { weeklyData, count, user: req.user })
+        } catch (error) {
+          console.error('Error fetching weekly data:', error);
+          res.status(500).json({ error: 'Internal server error' });
+        }
 
-      const count = currentWeekData.length;
+      } else {
+        try {
+          const today = new Date();
+          const startOfWeek = new Date(today);
+          startOfWeek.setHours(0, 0, 0, 0);
+          startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
 
-      // Calculate today's count based on currentWeekData
-      const todayCount = currentWeekData.filter(item => {
-        const createdAtDate = new Date(item.createdAt).toLocaleDateString();
-        const todayDate = currentDate.toLocaleDateString();
-        return createdAtDate === todayDate;
-      }).length;
+          const weeklyData = await Products.find({
+            createdAt: { $gte: startOfWeek, $lte: today },
+            username: username
+          }).sort({ createdAt: -1 });
+          const count = weeklyData.length;
 
-      // Retrieve recent data
-      const recent = await Products.find().sort({ createdAt: -1 }).limit(10);
-
-      // console.log(currentWeekData);
-
-      res.render('weekly', { count, productData, currentWeekData });
-
+          res.render('weekly', { weeklyData, count, user: req.user })
+        } catch (error) {
+          console.error('Error fetching weekly data:', error);
+          res.status(500).json({ error: 'Internal server error' });
+        }
+      }
     } catch (error) {
       console.error('Error retrieving data:', error);
       res.status(500).send('Internal Server Error');
@@ -176,46 +181,73 @@ app.get('/get_data/currentWeek', async (req, res) => {
 //last week data
 app.get('/get_data/lastWeek', async (req, res) => {
   if (req.isAuthenticated()) {
+    // try {
+    //   const username = req.user.username;
+    //   const userRole = req.user.userRole;
+
+    //   const currentDate = new Date();
+    //   currentDate.setHours(0, 0, 0, 0);
+
+    //   // Calculate the start and end dates of the last week
+    //   const startOfLastWeek = new Date(currentDate);
+    //   startOfLastWeek.setDate(currentDate.getDate() - currentDate.getDay() - 6); // Set to the first day of the last week (Sunday)
+    //   const endOfLastWeek = new Date(startOfLastWeek);
+    //   endOfLastWeek.setDate(startOfLastWeek.getDate() + 6);
+
+    //   // Retrieve data for the last week
+    //   const lastWeekData = await Products.find({
+    //     "createdAt": { $gte: startOfLastWeek, $lte: endOfLastWeek }
+    //   } && { username }).sort({ createdAt: -1 });
+
+    //   const count = lastWeekData.length;
+
+    //   // Calculate today's count based on lastWeekData
+    //   const todayCount = lastWeekData.filter(item => {
+    //     const createdAtDate = new Date(item.createdAt).toLocaleDateString();
+    //     const todayDate = currentDate.toLocaleDateString();
+    //     return createdAtDate === todayDate;
+    //   }).length;
+
+    //   // Retrieve recent data
+    //   const recent = await Products.find().sort({ createdAt: -1 }).limit(10);
+
+    //   // console.log(currentWeekData);
+
+    //   res.render('lastWeek', { count, lastWeekData });
+
+    // } catch (error) {
+    //   console.error('Error retrieving data:', error);
+    //   res.status(500).send('Internal Server Error');
+    // }
     try {
       const username = req.user.username;
-      const userRole = req.user.userRole;
+      let userRole = req.user.userRole;
 
-      // Retrieve data from the Products collection
-      // const productData = await Products.find();
+      const today = new Date();
+      const endOfLastWeek = new Date(today);
+      endOfLastWeek.setHours(0, 0, 0, 0);
+      endOfLastWeek.setDate(today.getDate() - today.getDay()); // Last Sunday
 
-      const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0);
+      const startOfLastWeek = new Date(endOfLastWeek);
+      startOfLastWeek.setDate(endOfLastWeek.getDate() - 7); // The Sunday before last
+      let count, lastWeekAdmin, lastWeekUser;
+      if (userRole === 'admin') {
+        lastWeekAdmin = await Products.find({
+          createdAt: { $gte: startOfLastWeek, $lte: endOfLastWeek }
+        }).sort({ createdAt: -1 });
+        count = lastWeekAdmin.length;
+      } else {
+        lastWeekUser = await Products.find({
+          createdAt: { $gte: startOfLastWeek, $lte: endOfLastWeek },
+          username: username
+        }).sort({ createdAt: -1 });
+        count = lastWeekUser.length;
+      }
 
-      // Calculate the start and end dates of the last week
-      const startOfLastWeek = new Date(currentDate);
-      startOfLastWeek.setDate(currentDate.getDate() - currentDate.getDay() - 6); // Set to the first day of the last week (Sunday)
-      const endOfLastWeek = new Date(startOfLastWeek);
-      endOfLastWeek.setDate(startOfLastWeek.getDate() + 6);
-
-      // Retrieve data for the last week
-      const lastWeekData = await Products.find({
-        "createdAt": { $gte: startOfLastWeek, $lte: endOfLastWeek }
-      } && { username }).sort({ createdAt: -1 });
-
-      const count = lastWeekData.length;
-
-      // Calculate today's count based on lastWeekData
-      const todayCount = lastWeekData.filter(item => {
-        const createdAtDate = new Date(item.createdAt).toLocaleDateString();
-        const todayDate = currentDate.toLocaleDateString();
-        return createdAtDate === todayDate;
-      }).length;
-
-      // Retrieve recent data
-      const recent = await Products.find().sort({ createdAt: -1 }).limit(10);
-
-      // console.log(currentWeekData);
-
-      res.render('lastWeek', { count, productData, lastWeekData });
-
+      res.render('lastWeek', { lastWeekAdmin, lastWeekUser, count, user: req.user })
     } catch (error) {
-      console.error('Error retrieving data:', error);
-      res.status(500).send('Internal Server Error');
+      console.error('Error fetching weekly data:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   } else {
     res.redirect("/login");
@@ -227,29 +259,30 @@ app.get('/get_data/monthly', async (req, res) => {
   if (req.isAuthenticated()) {
     try {
       const username = req.user.username;
+      const userRole = req.user.userRole;
 
-      // Retrieve data from the Products collection
-      // const productData = await Products.find({});
+      const today = new Date();
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 2); // First day of this month
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1); // Last day of this month
 
-      const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0);
+      let monthlyAdminData, monthlyUserData, count;
+      if (userRole === 'admin') {
+        monthlyAdminData = await Products.find({
+          createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+        }).sort({ createdAt: -1 });
+        count = monthlyAdminData.length;
+      } else {
+        monthlyUserData = await Products.find({
+          createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+          username: username
+        }).sort({ createdAt: -1 });
+        count = monthlyUserData.length;
+      }
 
-      // Calculate the start and end dates of the current month
-      const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-      const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-
-      // Retrieve data for the current month
-      const currentMonthData = await Products.find({
-        "createdAt": { $gte: startOfMonth, $lte: endOfMonth }
-      } && { username }).sort({ createdAt: -1 });
-      const count = currentMonthData.length;
-      // console.log(currentMonthData);
-
-      res.render('monthly', { currentMonthData, count });
-
+      res.render('monthly', { monthlyAdminData, monthlyUserData, count, user: req.user })
     } catch (error) {
-      console.error('Error retrieving data:', error);
-      res.status(500).send('Internal Server Error');
+      console.error('Error fetching monthly data:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   } else {
     res.redirect("/login");
@@ -423,7 +456,9 @@ app.get("/get_data/data", async (req, res) => {
         const db = await Products();
         const data = await Products.find({ isApproved: false }).sort({ createdAt: -1 });
         const count = await Products.countDocuments({ isApproved: false });
-        res.render("data_2", { data, count, role, user: req.user });
+        const approvedData = await Products.find({ isApproved: true }).sort({ createdAt: -1 });
+        const countForApprovedData = await Products.find({ isApproved: true }).sort({ createdAt: -1 });
+        res.render("data_2", { data, count, role, approvedData, countForApprovedData, user: req.user });
       } else {
         const db = await Products();
         const data = await Products.find({ username }).sort({ createdAt: -1 });

@@ -15,13 +15,25 @@
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
     <link href="/styles/add.css" rel="stylesheet">
+    <style>
+        .nochange {
+            background-color: #a099ea;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 
 <body class="bg-body-tertiary" data-bs-theme="light">
+    <div class="dropdown position-fixed top-0 end-0 mt-3 me-3 bd-mode-toggle">
+        <button id="toggleButton" class="off">
+            <ion-icon name="sunny" id="sunny" class=""></ion-icon>
+            <ion-icon name="moon" id="moon" class="change_icon"></ion-icon>
+        </button>
+    </div>
     <div class="container">
         <main>
             <div class="py-5 text-center">
-                <img class="d-block mx-auto mb-4 img" src="/assets/imgs/PlaceOrder.png" alt="" width="80" height="80">
+                <img class="d-block mx-auto mb-4" src="/assets/imgs/PlaceOrder.png" alt="" width="80" height="80">
                 <h2>Add Customers</h2>
                 <p class="lead">You can add the customers here and even manage them.</p>
             </div>
@@ -78,18 +90,72 @@
     </div>
     </main>
 
-    <footer class="my-5 text-body-secondary text-center text-small">
+    <!-- <footer class="my-5 text-body-secondary text-center text-small">
         <p class="mb-1">&copy; 2023 GoG</p>
         <ul class="list-inline">
             <li class="list-inline-item"><a href="#">Privacy</a></li>
             <li class="list-inline-item"><a href="#">Terms</a></li>
             <li class="list-inline-item"><a href="#">Support</a></li>
         </ul>
-    </footer>
+    </footer> -->
     </div>
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        let change = document.querySelector("#toggleButton");
+        let change_icon1 = document.querySelector("#sunny");
+        let change_icon2 = document.querySelector("#moon");
+
+        function changeTheme() {
+            let element = document.body;
+            element.dataset.bsTheme = element.dataset.bsTheme == "light" ? "dark" : "light";
+            localStorage.setItem('theme', element.dataset.bsTheme); // Save the current theme in localStorage
+        }
+
+        // Load the theme from localStorage when the page loads
+        document.addEventListener("DOMContentLoaded", () => {
+            let storedTheme = localStorage.getItem('theme');
+            if (storedTheme) {
+                document.body.dataset.bsTheme = storedTheme;
+                if (storedTheme !== "light") {
+                    change_icon1.classList.add("change_icon");
+                    change_icon2.classList.remove("change_icon");
+                    change.classList.add("on");
+                } else {
+                    change_icon1.classList.remove("change_icon");
+                    change_icon2.classList.add("change_icon");
+                    change.classList.remove("on");
+                }
+            }
+        });
+
+        change.addEventListener("click", () => {
+
+            changeTheme();
+
+            if (document.body.getAttribute("data-bs-theme") !== "light") {
+                change_icon1.classList.add("change_icon");
+                change_icon2.classList.remove("change_icon");
+                change.classList.add("on");
+            } else {
+                change_icon1.classList.remove("change_icon");
+                change_icon2.classList.add("change_icon");
+                change.classList.remove("on");
+            }
+        });
+
+        $(window).on('scroll', function () {
+
+            if ($('body').scrollTop() >= $('.navbar').position().top) {
+                $('.navbar').css("margin", "5px");
+                $('.navbar').css("border-radius", "10px");
+            } else {
+                $('.navbar').css("margin", "0px");
+                $('.navbar').css("border-radius", "0px");
+            }
+        });
+    </script>
 </body>
 
 </html>

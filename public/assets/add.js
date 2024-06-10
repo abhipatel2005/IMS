@@ -3,7 +3,7 @@ const dropdown2 = document.getElementById('dropdown2');
 const dropdown3 = document.getElementById('dropdown3');
 
 const optionsMap1 = {
-  choose : ['Choose...'],
+  choose: ['Choose...'],
   it_products: ['Choose...', 'Desktop Computers', 'Laptop Notebook', 'Computer Printers', 'Tablet Computers'],
   furniture: ['Choose...', 'Class Room Desking', 'Excutive Table', 'Revolving chair'],
   stationary_items: ['Choose...', 'Diaries', 'Gel Pen'],
@@ -14,10 +14,10 @@ const optionsMap1 = {
 
 const optionsMap2 = {
   'Choose...': ['Choose...'],
-  'Desktop Computers': ['Choose...', 'Dell Core i5', 'HP Core i5','Asus Core i5','Lenovo Core i5'],
-  'Laptop Notebook': ['Choose...', 'RDP Core i5','Coconics Core i7','AXL Core i3'],
-  'Computer Printers': ['Choose...', 'Lecpure Inject Printer','Hp 1212 Printer','BANDHARA Inject Printer'],
-  'Tablet Computers': ['Choose...', 'Samsung Tablet 4GB','IRA Tablet 2GB 32GB','Acer Tablet 2GB 32GB'],
+  'Desktop Computers': ['Choose...', 'Dell Core i5', 'HP Core i5', 'Asus Core i5', 'Lenovo Core i5'],
+  'Laptop Notebook': ['Choose...', 'RDP Core i5', 'Coconics Core i7', 'AXL Core i3'],
+  'Computer Printers': ['Choose...', 'Lecpure Inject Printer', 'Hp 1212 Printer', 'BANDHARA Inject Printer'],
+  'Tablet Computers': ['Choose...', 'Samsung Tablet 4GB', 'IRA Tablet 2GB 32GB', 'Acer Tablet 2GB 32GB'],
   'Class Room Desking': ['Choose...', 'Duster', 'Chalk Box'],
   'Excutive Table': ['Choose...', 'ELIMS', 'Welfing'],
   'Revolving chair': ['Choose...', 'Faculty Chair', 'Lab Chair'],
@@ -29,7 +29,7 @@ const optionsMap2 = {
   'Fridge': ['Choose...', 'LG', 'Voltas'],
   'Steel tubes': ['Choose...', 'ARE 15', 'ARE 25'],
   'CPVC': ['Choose...', 'Astral', 'Vigor'],
-}; 
+};
 
 
 function updateSecondDropdown() {
@@ -73,7 +73,7 @@ function validateForm() {
   let category = document.getElementById("dropdown1").value;
   let sub_category = document.getElementById("dropdown2").value;
   let specification = document.getElementById("dropdown3").value;
-  
+
   if (category === 'Choose...' || sub_category === 'Choose...' || specification === 'Choose...') {
     alert('Please select a valid option for Category, Sub-Category, and Specification.');
     return; // Do not proceed with form submission
@@ -87,15 +87,41 @@ let change_icon1 = document.querySelector("#sunny");
 let change_icon2 = document.querySelector("#moon");
 let noChange = document.querySelector(".img");
 
+function changeTheme() {
+  let element = document.body;
+  element.dataset.bsTheme = element.dataset.bsTheme == "light" ? "dark" : "light";
+  localStorage.setItem('theme', element.dataset.bsTheme); // Save the current theme in localStorage
+}
+
+// Load the theme from localStorage when the page loads
+document.addEventListener("DOMContentLoaded", () => {
+  let storedTheme = localStorage.getItem('theme');
+  if (storedTheme) {
+    document.body.dataset.bsTheme = storedTheme;
+    if (storedTheme !== "light") {
+      change_icon1.classList.add("change_icon");
+      change_icon2.classList.remove("change_icon");
+      change.classList.add("on");
+      noChange.classList.add("nochange");
+    } else {
+      change_icon1.classList.remove("change_icon");
+      change_icon2.classList.add("change_icon");
+      change.classList.remove("on");
+      noChange.classList.remove("nochange")
+    }
+  }
+});
+
 change.addEventListener("click", () => {
 
   changeTheme();
 
-  if(document.body.getAttribute("data-bs-theme") !== "light"){
+  if (document.body.getAttribute("data-bs-theme") !== "light") {
     change_icon1.classList.add("change_icon");
     change_icon2.classList.remove("change_icon");
     change.classList.add("on");
     noChange.classList.add("nochange");
+
   } else {
     change_icon1.classList.remove("change_icon");
     change_icon2.classList.add("change_icon");
@@ -103,8 +129,3 @@ change.addEventListener("click", () => {
     noChange.classList.remove("nochange");
   }
 });
-
-function changeTheme() {
-  let element = document.body;
-  element.dataset.bsTheme = element.dataset.bsTheme == "light" ? "dark" : "light";
-}

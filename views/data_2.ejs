@@ -23,74 +23,121 @@
       </div>
     </div>
 
-    <!-- <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas> -->
-
-    <div class="table-responsive small">
-      <h5 class="h5">Total Orders: <%if(locals.count !==undefined && locals.count> 0){%>
-          <%=count%>
-            <%} else { %>
-              No Pending Orders
+    <%if(locals.count !==undefined && locals.count> 0){%>
+      <div class="table-responsive small">
+        <h5 class="h5">Pending Orders: <%if(locals.count !==undefined && locals.count> 0){%>
+            <%=count%>
               <%}%>
-      </h5>
-      <table class="table table-striped table-sm">
-        <thead>
-          <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Product ID</th>
-            <th scope="col">Category</th>
-            <th scope="col">Specification</th>
-            <th scope="col">Department</th>
-            <%if(locals.role){%>
-              <th scope="col">Actions</th>
-              <%} else {%>
-                <th scope="col">Status</th>
-                <% } %>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <% if(locals.data){ %>
-              <% data.forEach(item=> { %>
-                <td>
-                  <%=item.product_name %>
-                </td>
-                <td>
-                  <%=item.product_key %>
-                </td>
-                <td>
-                  <%=item.category %>
-                </td>
-                <td>
-                  <%=item.specification %>
-                </td>
-                <td>
-                  <%= item.department %>
-                </td>
-                <%if(locals.role){%>
-                  <td class="d-flex">
-                    <!-- Add Accept and Decline buttons -->
-                    <form method="POST" action="/approve_product/<%= item._id%>">
-                      <button type="submit" class="btn btn-success btn-sm me-2">Accept</button>
-                    </form>
-                    <form method="POST" action="/decline_product/<%= item._id %>">
-                      <a type="submit" class="btn btn-danger btn-sm">Decline</a>
-                    </form>
+        </h5>
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Product ID</th>
+              <th scope="col">Category</th>
+              <th scope="col">Specification</th>
+              <th scope="col">Department</th>
+              <%if(locals.role){%>
+                <th scope="col">Actions</th>
+                <%} else {%>
+                  <th scope="col">Status</th>
+                  <% } %>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <% if(locals.data){ %>
+                <% data.forEach(item=> { %>
+                  <td>
+                    <%=item.product_name %>
                   </td>
-                  <%} else {%>
-                    <td>
-                      <% if (item.isApproved) { %>
-                        <span class="btn btn-success btn-sm">Approved</span>
-                        <% } else { %>
-                          <span class="btn btn-danger btn-sm">Pending</span>
-                          <% } %>
+                  <td>
+                    <%=item.product_key %>
+                  </td>
+                  <td>
+                    <%=item.category %>
+                  </td>
+                  <td>
+                    <%=item.specification %>
+                  </td>
+                  <td>
+                    <%= item.department %>
+                  </td>
+                  <%if(locals.role){%>
+                    <td class="d-flex">
+                      <!-- Add Accept and Decline buttons -->
+                      <form method="POST" action="/approve_product/<%= item._id%>">
+                        <button type="submit" class="btn btn-success btn-sm me-2">Accept</button>
+                      </form>
+                      <form method="POST" action="/decline_product/<%= item._id %>">
+                        <a type="submit" class="btn btn-danger btn-sm">Decline</a>
+                      </form>
                     </td>
-                    <%}%>
-          </tr>
-          <% }); %>
-            <% } %>
-        </tbody>
-      </table>
-    </div>
+                    <%} else {%>
+                      <td>
+                        <% if (item.isApproved) { %>
+                          <span class="btn btn-success btn-sm">Approved</span>
+                          <% } else { %>
+                            <span class="btn btn-danger btn-sm">Pending</span>
+                            <% } %>
+                      </td>
+                      <%}%>
+            </tr>
+            <% }); %>
+              <% } %>
+          </tbody>
+        </table>
+      </div>
+      <%} else {%>
+        <h5 class="h5">No Pending Orders</h5>
+        <br>
+        <% } %>
+
+          <% if(locals.role){ %>
+            <div class="table-responsive small">
+              <h5 class="h5">Total Orders: <%if(locals.countForApprovedData !==undefined && locals.countForApprovedData>
+                  0){%>
+                  <%=countForApprovedData%>
+                    <%} else { %>
+                      No Orders
+                      <%}%>
+              </h5>
+              <table class="table table-striped table-sm">
+                <thead>
+                  <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Product ID</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Specification</th>
+                    <th scope="col">Department</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <% if(locals.approvedData){ %>
+                      <% approvedData.forEach(item=> { %>
+                        <td>
+                          <%=item.product_name %>
+                        </td>
+                        <td>
+                          <%=item.product_key %>
+                        </td>
+                        <td>
+                          <%=item.category %>
+                        </td>
+                        <td>
+                          <%=item.specification %>
+                        </td>
+                        <td>
+                          <%= item.department %>
+                        </td>
+                  </tr>
+                  <% }); %>
+                    <% } %>
+                </tbody>
+              </table>
+            </div>
+            <%}%>
   </main>
   </div>
   </div>
@@ -102,7 +149,25 @@
     function changeTheme() {
       let element = document.body;
       element.dataset.bsTheme = element.dataset.bsTheme == "light" ? "dark" : "light";
+      localStorage.setItem('theme', element.dataset.bsTheme); // Save the current theme in localStorage
     }
+
+    // Load the theme from localStorage when the page loads
+    document.addEventListener("DOMContentLoaded", () => {
+      let storedTheme = localStorage.getItem('theme');
+      if (storedTheme) {
+        document.body.dataset.bsTheme = storedTheme;
+        if (storedTheme !== "light") {
+          change_icon1.classList.add("change_icon");
+          change_icon2.classList.remove("change_icon");
+          change.classList.add("on");
+        } else {
+          change_icon1.classList.remove("change_icon");
+          change_icon2.classList.add("change_icon");
+          change.classList.remove("on");
+        }
+      }
+    });
 
     change.addEventListener("click", () => {
 

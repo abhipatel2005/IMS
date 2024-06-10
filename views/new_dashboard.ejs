@@ -23,21 +23,23 @@
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 mb-3">
 
         <div class="col">
-          <div class="card text-bg-light bg-light">
+          <div class="card">
             <!-- <div class="card-header">Today's Order</div> -->
             <div class="card-body">
               <h5 class="card-title">Today's Order(s)</h5>
               <p class="card-text display-4 fw-semibold text-primary-emphasis">
-                <%if(locals.todayCount){%>
+                <% if (locals.todayCount !==undefined && locals.todayCount> 0) { %>
                   <%= todayCount %>
-                    <%}%>
+                    <% } else { %>
+                      0
+                      <% } %>
               </p>
             </div>
           </div>
         </div>
 
         <div class="col">
-          <div class="card text-bg-light bg-light">
+          <div class="card">
             <!-- <div class="card-header">Total Orders</div> -->
             <div class="card-body">
               <h5 class="card-title">Total Orders</h5>
@@ -51,7 +53,7 @@
         </div>
 
         <div class="col">
-          <div class="card text-bg-light bg-light">
+          <div class="card">
             <!-- <div class="card-header">Pending</div> -->
             <div class="card-body">
               <h5 class="card-title">Pending</h5>
@@ -67,7 +69,7 @@
         </div>
 
         <div class="col">
-          <div class="card text-bg-light bg-light">
+          <div class="card">
             <!-- <div class="card-header">Accepted</div> -->
             <div class="card-body">
               <h5 class="card-title">Accepted</h5>
@@ -133,7 +135,25 @@
     function changeTheme() {
       let element = document.body;
       element.dataset.bsTheme = element.dataset.bsTheme == "light" ? "dark" : "light";
+      localStorage.setItem('theme', element.dataset.bsTheme); // Save the current theme in localStorage
     }
+
+    // Load the theme from localStorage when the page loads
+    document.addEventListener("DOMContentLoaded", () => {
+      let storedTheme = localStorage.getItem('theme');
+      if (storedTheme) {
+        document.body.dataset.bsTheme = storedTheme;
+        if (storedTheme !== "light") {
+          change_icon1.classList.add("change_icon");
+          change_icon2.classList.remove("change_icon");
+          change.classList.add("on");
+        } else {
+          change_icon1.classList.remove("change_icon");
+          change_icon2.classList.add("change_icon");
+          change.classList.remove("on");
+        }
+      }
+    });
 
     change.addEventListener("click", () => {
 
