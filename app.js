@@ -432,25 +432,46 @@ app.get("/get_data/data", async (req, res) => {
 
 //serach / retrieve data request for both dashboard and view all items pages
 app.get('/get_data/:data?/search', async (req, res) => {
-  const query = req.query.search;
+  if (req.isAuthenticated()) {
+    const query = req.query.search;
+    const userRole = req.user.userRole;
+    const username = req.user.username;
 
-  try {
-    const results = await Products.find({
-      $or: [
-        { product_name: { $regex: new RegExp(query, 'i') } },
-        { product_key: { $regex: new RegExp(query, 'i') } },
-        { department: { $regex: new RegExp(query, 'i') } },
-        { category: { $regex: new RegExp(query, 'i') } },
-        { sub_category: { $regex: new RegExp(query, 'i') } },
-        { specification: { $regex: new RegExp(query, 'i') } }
-      ]
-    });
-
-    // console.log(results);
-    res.render('search', { results });
-  } catch (error) {
-    console.error('Error searching in MongoDB:', error);
-    res.status(500).send('Internal Server Error');
+    try {
+      let results, count;
+      if (userRole === 'admin') {
+        results = await Products.find({
+          $or: [
+            { product_name: { $regex: new RegExp(query, 'i') } },
+            { product_key: { $regex: new RegExp(query, 'i') } },
+            { department: { $regex: new RegExp(query, 'i') } },
+            { category: { $regex: new RegExp(query, 'i') } },
+            { sub_category: { $regex: new RegExp(query, 'i') } },
+            { specification: { $regex: new RegExp(query, 'i') } }
+          ]
+        }).sort({ createdAt: -1 });
+        count = results.length;
+      } else {
+        results = await Products.find({
+          username: username,
+          $or: [
+            { product_name: { $regex: new RegExp(query, 'i') } },
+            { product_key: { $regex: new RegExp(query, 'i') } },
+            { department: { $regex: new RegExp(query, 'i') } },
+            { category: { $regex: new RegExp(query, 'i') } },
+            { sub_category: { $regex: new RegExp(query, 'i') } },
+            { specification: { $regex: new RegExp(query, 'i') } }
+          ]
+        }).sort({ createdAt: -1 });
+        count = results.length;
+      }
+      res.render('search', { results, count });
+    } catch (error) {
+      console.error('Error searching in MongoDB:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  } else {
+    res.redirect('/login');
   }
 });
 
@@ -551,6 +572,7 @@ app.post('/login', async (req, res) => {
               res.redirect("/get_data/admin");
             }
             else {
+
               res.json("Choose proper role");
             }
           }
@@ -652,6 +674,7 @@ app.post("/submit", async (req, res) => {
     res.render("failure.ejs");
   }
 });
+
 //approving products
 app.post('/approve_product/:productId', async (req, res) => {
   const productId = req.params.productId;
@@ -671,6 +694,18 @@ app.delete('/decline_product/:productId', async (req, res) => {
   try {
     await Products.findByIdAndUpdate(productId, { isApproved: false });
     res.json("Product declined successfully.");
+  } catch (error) {
+    console.error('Error declining product:', error);
+    res.status(500).send('Error declining product');
+  }
+});
+
+//to remove the user product before it gets approved
+app.get('/remove/:item_id', async (req, res) => {
+  const productId = req.params.item_id;
+  try {
+    await Products.findByIdAndDelete(productId);
+    res.redirect('/get_data/data');
   } catch (error) {
     console.error('Error declining product:', error);
     res.status(500).send('Error declining product');

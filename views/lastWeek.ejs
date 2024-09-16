@@ -3,14 +3,13 @@
     <div
       class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
       <h1 class="h2">About Last Week</h1>
-      <div class="btn-toolbar mb-2 mb-md-0">
+      <!-- <div class="btn-toolbar mb-2 mb-md-0">
         <div class="btn-group me-2">
           <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
           <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
         </div>
         <a type="button" href="/get_data/weekly-pdf-report"
           class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
-          <!-- <i class="bi bi-file-earmark-arrow-down-fill"></i> -->
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
             class="bi bi-file-earmark-arrow-down" viewBox="0 0 16 16">
             <path
@@ -20,7 +19,7 @@
           </svg>
           Download
         </a>
-      </div>
+      </div> -->
     </div>
 
     <%if(locals.count !==undefined && locals.count> 0){%>
@@ -74,47 +73,6 @@
   </div>
   </div>
   <script>
-    let change = document.querySelector("#toggleButton");
-    let change_icon1 = document.querySelector("#sunny");
-    let change_icon2 = document.querySelector("#moon");
-
-    function changeTheme() {
-      let element = document.body;
-      element.dataset.bsTheme = element.dataset.bsTheme == "light" ? "dark" : "light";
-      localStorage.setItem('theme', element.dataset.bsTheme); // Save the current theme in localStorage
-    }
-
-    // Load the theme from localStorage when the page loads
-    document.addEventListener("DOMContentLoaded", () => {
-      let storedTheme = localStorage.getItem('theme');
-      if (storedTheme) {
-        document.body.dataset.bsTheme = storedTheme;
-        if (storedTheme !== "light") {
-          change_icon1.classList.add("change_icon");
-          change_icon2.classList.remove("change_icon");
-          change.classList.add("on");
-        } else {
-          change_icon1.classList.remove("change_icon");
-          change_icon2.classList.add("change_icon");
-          change.classList.remove("on");
-        }
-      }
-    });
-
-    change.addEventListener("click", () => {
-
-      changeTheme();
-
-      if (document.body.getAttribute("data-bs-theme") !== "light") {
-        change_icon1.classList.add("change_icon");
-        change_icon2.classList.remove("change_icon");
-        change.classList.add("on");
-      } else {
-        change_icon1.classList.remove("change_icon");
-        change_icon2.classList.add("change_icon");
-        change.classList.remove("on");
-      }
-    });
 
     $(window).on('scroll', function () {
 
@@ -128,5 +86,6 @@
     });
 
   </script>
+  <script src="/assets/theme.js"></script>
 
   </html>

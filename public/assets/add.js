@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
       change_icon1.classList.remove("change_icon");
       change_icon2.classList.add("change_icon");
       change.classList.remove("on");
-      noChange.classList.remove("nochange")
+      noChange.classList.remove("nochange");
     }
   }
 });
