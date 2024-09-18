@@ -8,8 +8,8 @@
 }
 
 .nav-link:not(.no-effect):hover {
-  background-color: #0d6efd;
-  color: white;
+  background-color: #ced4da;
+  color:darkblue !important;
 }
 
 /*

@@ -1,39 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error Occured</title>
-    <style>
-      body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        .container {
-            text-align: center;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        a {
-            text-decoration: none;
-            font-weight: bold;
-            text-decoration: none;
-        }
-    </style>
-</head>
-<body>
 
-  <div class="container">
-    <h1>Couldn't Place the order due to some issue</h1>
-    <p>Try Again...!</p>
-    <button><a href="/add">Add Items Again</a></button>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error Occured</title>
+  <style>
+    body {
+      height: 100vh;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="p-4 shadow-lg rounded text-center">
+    <% if (locals.user && user.userRole==='admin' ) { %>
+      <h1>Sorry, We couldn't add the customer</h1>
+      <p>You can try again...!</p>
+      <a href="/add_customer" class="btn btn-outline-dark">Add Customer</a>
+      <!-- <a href="/customers" class="btn btn-outline-dark">Customer Tab</a> -->
+      <% } else {%>
+        <h1>Sorry, We couldn't place the order</h1>
+        <p>kindly refer the product list or try again.</p>
+        <a href="/add" class="btn btn-outline-dark">Add Items</a>
+        <a href="/get_data/user" class="btn btn-outline-dark">Dashboard</a>
+        <% } %>
   </div>
 </body>
+
 </html>
