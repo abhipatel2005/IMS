@@ -18,14 +18,14 @@
 </head>
 
 <body class="container-fluid d-flex justify-content-center align-items-center">
-  <div class="p-4 shadow-lg rounded text-center">
+  <div class="p-4 shadow-lg rounded">
     <% if (locals.user && user.userRole==='admin' ) { %>
-      <h1>Customer added successfully</h1>
+      <h1 class="color display-6 mb-2">Customer added successfully</h1>
       <p>You can find the more detail on customer tab. Thank You...!</p>
       <a href="/add_customer" class="btn btn-outline-dark">Add Customer</a>
       <a href="/customers" class="btn btn-outline-dark">Customer Tab</a>
       <% } else {%>
-        <h1>Order placed successfully</h1>
+        <h1 class="color display-6 mb-2">Order placed successfully</h1>
         <p>You can find the more detail on dashboard. Thank You...!</p>
         <a href="/add" class="btn btn-outline-dark">Add Items</a>
         <a href="/get_data/user" class="btn btn-outline-dark">Dashboard</a>

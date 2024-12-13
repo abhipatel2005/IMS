@@ -60,6 +60,7 @@ passport.deserializeUser(User.deserializeUser());
 app.get("/", (req, res) => {
   res.render("index.ejs");
 });
+
 app.get("/login", (req, res) => {
   res.render("login.ejs");
 });
@@ -75,6 +76,42 @@ app.get("/add", (req, res) => {
 app.get("/add_customer", (req, res) => {
   if (req.isAuthenticated()) {
     res.render("add_customer.ejs");
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.get('/approved_orders', async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const username = req.user.username;
+
+      const approvedData = await Products.find({ isApproved: true, username }).sort({ createdAt: -1 });
+      const noApprovedOrders = await Products.countDocuments({ isApproved: true, username });
+      res.render('orders', { approvedData, noApprovedOrders });
+
+    } catch (error) {
+      console.error('Error retrieving data:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.get('/pending_orders', async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const username = req.user.username;
+
+      const pendingData = await Products.find({ isApproved: false, username }).sort({ createdAt: -1 });
+      const noPendingOrders = await Products.countDocuments({ isApproved: false, username });
+      res.render('orders', { pendingData, noPendingOrders });
+
+    } catch (error) {
+      console.error('Error retrieving data:', error);
+      res.status(500).send('Internal Server Error');
+    }
   } else {
     res.redirect("/login");
   }
@@ -572,7 +609,6 @@ app.post('/login', async (req, res) => {
               res.redirect("/get_data/admin");
             }
             else {
-
               res.json("Choose proper role");
             }
           }
@@ -680,7 +716,6 @@ app.post('/approve_product/:productId', async (req, res) => {
   const productId = req.params.productId;
   try {
     await Products.findByIdAndUpdate(productId, { isApproved: true });
-    // res.redirect('/get_data/data'); // Redirect back to admin panel
     res.redirect("/get_data/data")
   } catch (error) {
     console.error('Error approving product:', error);
