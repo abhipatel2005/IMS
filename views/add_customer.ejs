@@ -17,7 +17,7 @@
     <link href="/styles/add.css" rel="stylesheet">
 </head>
 
-<body data-bs-theme="light">
+<body data-bs-theme="light" class="bg-body-tertiary">
     <div class="dropdown position-fixed top-0 end-0 mt-3 me-3 bd-mode-toggle">
         <button id="toggleButton" class="off">
             <ion-icon name="sunny" id="sunny" class=""></ion-icon>
@@ -96,7 +96,56 @@
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="/assets/theme.js"></script>
+    <script>
+        let change = document.querySelector("#toggleButton");
+        let change_icon1 = document.querySelector("#sunny");
+        let change_icon2 = document.querySelector("#moon");
+        let noChange = document.querySelector(".img");
+
+        function changeTheme() {
+            let element = document.body;
+            element.dataset.bsTheme = element.dataset.bsTheme == "light" ? "dark" : "light";
+            localStorage.setItem('theme', element.dataset.bsTheme); // Save the current theme in localStorage
+        }
+
+        // Load the theme from localStorage when the page loads
+        document.addEventListener("DOMContentLoaded", () => {
+            let storedTheme = localStorage.getItem('theme');
+            if (storedTheme) {
+                document.body.dataset.bsTheme = storedTheme;
+                if (storedTheme !== "light") {
+                    change_icon1.classList.add("change_icon");
+                    change_icon2.classList.remove("change_icon");
+                    change.classList.add("on");
+                    noChange.classList.add("nochange");
+                } else {
+                    change_icon1.classList.remove("change_icon");
+                    change_icon2.classList.add("change_icon");
+                    change.classList.remove("on");
+                    noChange.classList.remove("nochange");
+                }
+            }
+        });
+
+        change.addEventListener("click", () => {
+
+            changeTheme();
+
+            if (document.body.getAttribute("data-bs-theme") !== "light") {
+                change_icon1.classList.add("change_icon");
+                change_icon2.classList.remove("change_icon");
+                change.classList.add("on");
+                noChange.classList.add("nochange");
+
+            } else {
+                change_icon1.classList.remove("change_icon");
+                change_icon2.classList.add("change_icon");
+                change.classList.remove("on");
+                noChange.classList.remove("nochange");
+            }
+        });
+    </script>
+
 </body>
 
 </html>

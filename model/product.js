@@ -7,6 +7,7 @@ const productSchema = new mongoose.Schema({
   category: String,
   sub_category: String,
   specification: String,
+  quantity: Number,
   username: String,
   createdAt: {
     type: Date,

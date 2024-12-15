@@ -17,21 +17,40 @@
   </style>
 </head>
 
-<body class="container-fluid d-flex justify-content-center align-items-center">
+<body class="container-fluid d-flex justify-content-center align-items-center" data-bs-theme="light">
   <div class="p-4 shadow-lg rounded">
     <% if (locals.user && user.userRole==='admin' ) { %>
       <h1 class="color display-6 mb-2">Customer added successfully</h1>
       <p>You can find the more detail on customer tab. Thank You...!</p>
-      <a href="/add_customer" class="btn btn-outline-dark">Add Customer</a>
-      <a href="/customers" class="btn btn-outline-dark">Customer Tab</a>
+      <a href="/add_customer" class="btn btn-light">Add Customer</a>
+      <a href="/customers" class="btn btn-light">Customer Tab</a>
       <% } else {%>
         <h1 class="color display-6 mb-2">Order placed successfully</h1>
         <p>You can find the more detail on dashboard. Thank You...!</p>
-        <a href="/add" class="btn btn-outline-dark">Add Items</a>
-        <a href="/get_data/user" class="btn btn-outline-dark">Dashboard</a>
+        <a href="/add" class="btn btn-light">Add Items</a>
+        <a href="/get_data/user" class="btn btn-light">Dashboard</a>
         <% } %>
   </div>
+  <script>
+    let change = document.querySelector("#toggleButton");
+    let change_icon1 = document.querySelector("#sunny");
+    let change_icon2 = document.querySelector("#moon");
+    let noChange = document.querySelector(".img");
 
+    function changeTheme() {
+      let element = document.body;
+      element.dataset.bsTheme = element.dataset.bsTheme == "light" ? "dark" : "light";
+      localStorage.setItem('theme', element.dataset.bsTheme); // Save the current theme in localStorage
+    }
+
+    // Load the theme from localStorage when the page loads
+    document.addEventListener("DOMContentLoaded", () => {
+      let storedTheme = localStorage.getItem('theme');
+      if (storedTheme) {
+        document.body.dataset.bsTheme = storedTheme;
+      }
+    });
+  </script>
 </body>
 
 </html>

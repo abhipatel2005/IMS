@@ -2,9 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const PDFDocument = require('pdfkit');
+const { Server } = require("socket.io");
+const http = require('http');;
 const PDFDocumentWithTables = require('pdfkit-table');
-// const table = require('pdfkit-table');
-// const User = require('./model/user.js');
 const Products = require('./model/product.js');
 const Customer = require('./model/customer.js');
 const Counter = require('./model/counter.js');
@@ -18,6 +18,8 @@ const mongo_pass = process.env.MONGO_PASS;
 const mongoURL = `mongodb+srv://${mongo_user}:${mongo_pass}@cluster0.sgjxjjr.mongodb.net/`;
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server)
 const port = 3000;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
@@ -86,9 +88,15 @@ app.get('/approved_orders', async (req, res) => {
     try {
       const username = req.user.username;
 
-      const approvedData = await Products.find({ isApproved: true, username }).sort({ createdAt: -1 });
-      const noApprovedOrders = await Products.countDocuments({ isApproved: true, username });
-      res.render('orders', { approvedData, noApprovedOrders });
+      if (req.user.userRole === 'user') {
+        const approvedData = await Products.find({ isApproved: true, username }).sort({ createdAt: -1 });
+        const noApprovedOrders = await Products.countDocuments({ isApproved: true, username });
+        res.render('orders', { approvedData, noApprovedOrders, title: 'IMS | Approved Orders' });
+      } else {
+        const approvedData = await Products.find({ isApproved: true }).sort({ createdAt: -1 });
+        const noApprovedOrders = await Products.countDocuments({ isApproved: true });
+        res.render('orders', { approvedData, noApprovedOrders, username, title: 'IMS | Approved Orders' });
+      }
 
     } catch (error) {
       console.error('Error retrieving data:', error);
@@ -104,9 +112,15 @@ app.get('/pending_orders', async (req, res) => {
     try {
       const username = req.user.username;
 
-      const pendingData = await Products.find({ isApproved: false, username }).sort({ createdAt: -1 });
-      const noPendingOrders = await Products.countDocuments({ isApproved: false, username });
-      res.render('orders', { pendingData, noPendingOrders });
+      if (req.user.userRole === 'user') {
+        const pendingData = await Products.find({ isApproved: false, username }).sort({ createdAt: -1 });
+        const noPendingOrders = await Products.countDocuments({ isApproved: false, username });
+        res.render('orders', { pendingData, noPendingOrders, title: 'IMS | Pending Orders' });
+      } else {
+        const pendingData = await Products.find({ isApproved: false }).sort({ createdAt: -1 });
+        const noPendingOrders = await Products.countDocuments({ isApproved: false });
+        res.render('orders', { pendingData, noPendingOrders, username, title: 'IMS | Pending Orders' });
+      }
 
     } catch (error) {
       console.error('Error retrieving data:', error);
@@ -142,14 +156,13 @@ app.get('/get_data/user', async (req, res) => {
       const todayCount = userOrders.length;
 
       const recent = await Products.find({ username }).sort({ createdAt: -1 }).limit(10);
-      // const data = await Products.find();
       const pending = await Products.find({ isApproved: false, username });
       let pendingOrders = pending.length;
 
       const approved = await Products.find({ isApproved: true, username });
       let approvedOrders = approved.length;
 
-      res.render('dashboard', { count, todayCount, recent, userData, pendingOrders, approvedOrders, user: req.user });
+      res.render('dashboard', { count, todayCount, recent, userData, pendingOrders, approvedOrders, username, user: req.user });
 
     } catch (error) {
       console.error('Error retrieving data:', error);
@@ -327,7 +340,7 @@ app.get('/get_data/weekly-report', async (req, res) => {
 
       doc.fontSize(18) // Set font size to 18
         .text('Weekly Report') // Center align text
-        .fontSize(12) // Reset font size to 12 for the rest of the document
+        .fontSize(12)
         .text('\n\n');
 
       // Define table headers
@@ -351,7 +364,6 @@ app.get('/get_data/weekly-report', async (req, res) => {
 
       // Finalize and end the PDF stream
       doc.end();
-
 
     } catch (error) {
       console.error('Error generating PDF report:', error);
@@ -396,7 +408,7 @@ app.get('/get_data/monthly-report', async (req, res) => {
 
       doc.pipe(res);
 
-      //to get month adn year to add in title
+      //to get month and year to add in title
       let date = new Date();
       let month = (date.getMonth() + 1).toString().padStart(2, '0');
       let year = date.getFullYear();
@@ -451,12 +463,12 @@ app.get("/get_data/data", async (req, res) => {
         const count = await Products.countDocuments({ isApproved: false });
         const approvedData = await Products.find({ isApproved: true }).sort({ createdAt: -1 });
         const countForApprovedData = await Products.find({ isApproved: true }).sort({ createdAt: -1 });
-        res.render("orders", { data, count, role, approvedData, countForApprovedData, user: req.user });
+        res.render("orders", { data, count, role, approvedData, countForApprovedData, user: req.user, username, title: 'IMS | Orders' });
       } else {
         const db = await Products();
         const data = await Products.find({ username }).sort({ createdAt: -1 });
         const count = await Products.countDocuments({ username });
-        res.render("orders", { data, count, user: req.user });
+        res.render("orders", { data, count, username, title: 'IMS | Orders' });
       }
 
     } catch (err) {
@@ -464,6 +476,21 @@ app.get("/get_data/data", async (req, res) => {
     }
   } else {
     res.redirect("/login");
+  }
+});
+
+app.post("/place_order", async (req, res) => {
+  try {
+    const newOrder = new Products(req.body);
+    await newOrder.save();
+
+    // Emit event to admins
+    io.emit("newOrder", { order: newOrder });
+
+    res.status(201).json({ message: "Order placed successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to place order." });
   }
 });
 
@@ -556,11 +583,9 @@ app.post("/customer_submit", async (req, res) => {
 
     await newCustomer.save();
     res.render("success.ejs", { user: req.user });
-    // res.json({ message: "Form submitted successfully" });
   } catch (err) {
     console.error("Error saving to MongoDB:", err);
     res.render("failure.ejs");
-    // res.status(500).json({ error: "An error occurred" });
   }
 });
 
@@ -570,7 +595,6 @@ app.post('/register', async (req, res) => {
     if (err) {
       console.log(err);
       res.json(err.message);
-      // res.redirect("/");
     } else {
       passport.authenticate("local")(req, res, function (err) {
         if (err) {
@@ -650,7 +674,7 @@ app.get("/get_data/admin", async (req, res) => {
       const approved = await Products.find({ isApproved: true })
       const approvedOrders = approved.length;
 
-      res.render('dashboard', { count, todayCount, recent, userData, pendingOrders, approvedOrders, user: req.user });
+      res.render('dashboard', { count, todayCount, recent, userData, pendingOrders, approvedOrders, user: req.user, username });
 
     } catch (error) {
       console.error('Error retrieving data:', error);
@@ -676,6 +700,7 @@ app.post("/submit", async (req, res) => {
     let department = req.body.department;
     let category = req.body.category;
     let specification = req.body.specification;
+    let quantity = req.body.quantity;
     let username = req.user.username;
 
     const formattedDate = generateFormattedDate();
@@ -699,6 +724,7 @@ app.post("/submit", async (req, res) => {
       department,
       category,
       specification,
+      quantity,
       username
     });
 
@@ -724,7 +750,7 @@ app.post('/approve_product/:productId', async (req, res) => {
 });
 
 //to delete the product
-app.delete('/decline_product/:productId', async (req, res) => {
+app.post('/decline_product/:productId', async (req, res) => {
   const productId = req.params.productId;
   try {
     await Products.findByIdAndUpdate(productId, { isApproved: false });
