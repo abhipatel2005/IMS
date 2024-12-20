@@ -1,0 +1,185 @@
+<%- include('partials/header.ejs') %>
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h2 class="h2">Orders</h2>
+        </div>
+
+        <!-- Category selection -->
+        <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+            <input type="checkbox" class="btn-check" id="btncheck1" autocomplete="off">
+            <label class="btn btn-outline-secondary" for="btncheck1">CPVC</label>
+
+            <input type="checkbox" class="btn-check" id="btncheck2" autocomplete="off">
+            <label class="btn btn-outline-secondary" for="btncheck2">UPVC</label>
+
+            <input type="checkbox" class="btn-check" id="btncheck3" autocomplete="off">
+            <label class="btn btn-outline-secondary" for="btncheck3">Bath Wears</label>
+        </div>
+
+        <!-- Table to show the products -->
+        <div class="table-responsive small">
+            <h5 class="h5 mb-3">Total Orders: <%= count %>
+            </h5>
+            <table class="table table-striped table-sm" id="productTable">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>Name</th>
+                        <th>Product ID</th>
+                        <th>Category</th>
+                        <th>Specification</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% (data || []).forEach(item=> { %>
+                        <tr data-category="<%= item.category %>" class="product-row">
+                            <td>
+                                <input type="checkbox" class="product-checkbox" data-id="<%= item._id %>">
+                            </td>
+                            <td>
+                                <%= item.product_name %>
+                            </td>
+                            <td>
+                                <%= item.product_key %>
+                            </td>
+                            <td>
+                                <%= item.category %>
+                            </td>
+                            <td>
+                                <%= item.specification %>
+                            </td>
+                            <td>
+                                <input type="number" class="quantity" value="<%= item.quantity %>"
+                                    data-id="<%= item._id %>">
+                            </td>
+                            <td>
+                                <%= //item.price - item.price * (5/100) %>
+                                    <%= Math.round(item.price - item.price * (5/100)) %> <!--round up-->
+                            </td>
+                        </tr>
+                        <% }); %>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Invoice Section -->
+        <div id="invoiceSection">
+            <h5>Invoice</h5>
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Category</th>
+                    </tr>
+                </thead>
+                <tbody id="invoiceTable">
+                    <!-- Selected products will be listed here -->
+                </tbody>
+            </table>
+            <button id="generateInvoice" class="btn btn-primary">Generate Invoice</button>
+        </div>
+    </main>
+
+    <script>
+        const checkboxes = document.querySelectorAll('.btn-check');
+        const productRows = document.querySelectorAll('.product-row');
+        const invoiceTable = document.getElementById('invoiceTable');
+        const generateInvoiceButton = document.getElementById('generateInvoice');
+
+        let selectedProducts = [];
+
+        // Listen to category checkbox clicks to filter the product rows
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const selectedCategories = Array.from(checkboxes)
+                    .filter(chk => chk.checked)
+                    .map(chk => chk.nextElementSibling.innerText);
+
+                // Show/hide rows based on category selection
+                productRows.forEach(row => {
+                    const category = row.getAttribute('data-category');
+                    if (selectedCategories.includes(category)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Handle product selection
+        document.querySelectorAll('.product-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const productId = checkbox.getAttribute('data-id');
+                const quantityInput = checkbox.closest('tr').querySelector('.quantity');
+                const quantity = parseInt(quantityInput.value);
+
+                if (checkbox.checked) {
+                    // Add the product to the selected list
+                    selectedProducts.push({ productId, quantity });
+                } else {
+                    // Remove the product from the selected list
+                    selectedProducts = selectedProducts.filter(product => product.productId !== productId);
+                }
+
+                // Update the invoice table
+                updateInvoice();
+            });
+        });
+
+        // Handle quantity change
+        document.querySelectorAll('.quantity').forEach(input => {
+            input.addEventListener('input', () => {
+                const productId = input.getAttribute('data-id');
+                const quantity = parseInt(input.value);
+
+                // Update the selected product quantity
+                const product = selectedProducts.find(product => product.productId === productId);
+                if (product) {
+                    product.quantity = quantity;
+                }
+
+                // Update the invoice table
+                updateInvoice();
+            });
+        });
+
+        // Update the invoice table with selected products
+        function updateInvoice() {
+            invoiceTable.innerHTML = '';
+            selectedProducts.forEach(product => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                <td>${product.productId}</td>
+                <td>${product.quantity}</td>
+                <td>${getProductCategoryById(product.productId)}</td>
+            `;
+                invoiceTable.appendChild(row);
+            });
+        }
+
+        // Get category for a given product ID (you would ideally get this dynamically from the backend)
+        function getProductCategoryById(productId) {
+            const product = (data || []).find(item => item._id === productId);
+            return product ? product.category : 'Unknown';
+        }
+
+        // Generate the invoice when the button is clicked
+        generateInvoiceButton.addEventListener('click', () => {
+            if (selectedProducts.length > 0) {
+                // Create the invoice (send the selected products to the server or handle as needed)
+                console.log('Generating invoice for selected products:', selectedProducts);
+                alert('Invoice Generated!');
+            } else {
+                alert('No products selected');
+            }
+        });
+    </script>
+    <script src="/assets/theme.js"></script>
+    </body>
+
+    </html>

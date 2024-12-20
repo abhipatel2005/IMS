@@ -15,7 +15,8 @@ const dotenv = require('dotenv');
 dotenv.config();
 const mongo_user = process.env.MONGO_USER;
 const mongo_pass = process.env.MONGO_PASS;
-const mongoURL = `mongodb+srv://${mongo_user}:${mongo_pass}@cluster0.sgjxjjr.mongodb.net/`;
+const mongoURL = `mongodb+srv://${mongo_user}:${mongo_pass}@cluster0.sgjxjjr.mongodb.net/vyapar?retryWrites=true&w=majority&appName=Cluster0
+`;
 
 const app = express();
 const server = http.createServer(app);
@@ -479,6 +480,22 @@ app.get("/get_data/data", async (req, res) => {
   }
 });
 
+app.get("/estimate", async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      // Admin order page
+      const db = await Products();
+      const data = await Products.find();
+      const count = await Products.countDocuments();
+      res.render("estimate", { data, count });
+    } catch (err) {
+      console.log(err);
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
 app.post("/place_order", async (req, res) => {
   try {
     const newOrder = new Products(req.body);
@@ -696,11 +713,11 @@ function generateFormattedDate() {
 //Add items route
 app.post("/submit", async (req, res) => {
   try {
-    let product_name = req.body.sub_category;
-    let department = req.body.department;
+    let product_name = req.body.name;
     let category = req.body.category;
     let specification = req.body.specification;
     let quantity = req.body.quantity;
+    let price = req.body.price;
     let username = req.user.username;
 
     const formattedDate = generateFormattedDate();
@@ -721,10 +738,10 @@ app.post("/submit", async (req, res) => {
     const newProduct = new Products({
       product_name,
       product_key,
-      department,
       category,
       specification,
       quantity,
+      price,
       username
     });
 

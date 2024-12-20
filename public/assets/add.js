@@ -1,73 +1,73 @@
-const dropdown1 = document.getElementById('dropdown1');
-const dropdown2 = document.getElementById('dropdown2');
-const dropdown3 = document.getElementById('dropdown3');
+// const dropdown1 = document.getElementById('dropdown1');
+// const dropdown2 = document.getElementById('dropdown2');
+// const dropdown3 = document.getElementById('dropdown3');
 
-const optionsMap1 = {
-  choose: ['Choose...'],
-  it_products: ['Choose...', 'Desktop Computers', 'Laptop Notebook', 'Computer Printers', 'Tablet Computers'],
-  furniture: ['Choose...', 'Class Room Desking', 'Excutive Table', 'Revolving chair'],
-  stationary_items: ['Choose...', 'Diaries', 'Gel Pen'],
-  electrical_appliance: ['Choose...', 'Lead Luminaire', 'MCCB'],
-  electrical_equipments: ['Choose...', 'Television Tv', 'Fridge'],
-  pipes_fitting: ['Choose...', 'Steel tubes', 'CPVC'],
-};
+// const optionsMap1 = {
+//   choose: ['Choose...'],
+//   cpvc: ['Choose...', '3/4', '1/2', '1', '2', '4'],
+//   upvc: ['Choose...', 'Class Room Desking', 'Excutive Table', 'Revolving chair'],
+//   // stationary_items: ['Choose...', 'Diaries', 'Gel Pen'],
+//   // electrical_appliance: ['Choose...', 'Lead Luminaire', 'MCCB'],
+//   // electrical_equipments: ['Choose...', 'Television Tv', 'Fridge'],
+//   // pipes_fitting: ['Choose...', 'Steel tubes', 'CPVC'],
+// };
 
-const optionsMap2 = {
-  'Choose...': ['Choose...'],
-  'Desktop Computers': ['Choose...', 'Dell Core i5', 'HP Core i5', 'Asus Core i5', 'Lenovo Core i5'],
-  'Laptop Notebook': ['Choose...', 'RDP Core i5', 'Coconics Core i7', 'AXL Core i3'],
-  'Computer Printers': ['Choose...', 'Lecpure Inject Printer', 'Hp 1212 Printer', 'BANDHARA Inject Printer'],
-  'Tablet Computers': ['Choose...', 'Samsung Tablet 4GB', 'IRA Tablet 2GB 32GB', 'Acer Tablet 2GB 32GB'],
-  'Class Room Desking': ['Choose...', 'Duster', 'Chalk Box'],
-  'Excutive Table': ['Choose...', 'ELIMS', 'Welfing'],
-  'Revolving chair': ['Choose...', 'Faculty Chair', 'Lab Chair'],
-  'Diaries': ['Choose...', 'Faculty Diary', 'Student Diary'],
-  'Gel Pen': ['Choose...', 'Reynolds', 'Hauser'],
-  'Lead Luminaire': ['Choose...', 'Surya', 'Hawells'],
-  'MCCB': ['Choose...', 'Legrand', 'LNT'],
-  'Television Tv': ['Choose...', 'Sony', 'LG'],
-  'Fridge': ['Choose...', 'LG', 'Voltas'],
-  'Steel tubes': ['Choose...', 'ARE 15', 'ARE 25'],
-  'CPVC': ['Choose...', 'Astral', 'Vigor'],
-};
+// const optionsMap2 = {
+//   'Choose...': ['Choose...'],
+//   '3/4': ['Choose...', 'Dell Core i5', 'HP Core i5', 'Asus Core i5', 'Lenovo Core i5'],
+//   '1/2': ['Choose...', 'RDP Core i5', 'Coconics Core i7', 'AXL Core i3'],
+//   'Computer Printers': ['Choose...', 'Lecpure Inject Printer', 'Hp 1212 Printer', 'BANDHARA Inject Printer'],
+//   'Tablet Computers': ['Choose...', 'Samsung Tablet 4GB', 'IRA Tablet 2GB 32GB', 'Acer Tablet 2GB 32GB'],
+//   'Class Room Desking': ['Choose...', 'Duster', 'Chalk Box'],
+//   'Excutive Table': ['Choose...', 'ELIMS', 'Welfing'],
+//   'Revolving chair': ['Choose...', 'Faculty Chair', 'Lab Chair'],
+//   'Diaries': ['Choose...', 'Faculty Diary', 'Student Diary'],
+//   'Gel Pen': ['Choose...', 'Reynolds', 'Hauser'],
+//   'Lead Luminaire': ['Choose...', 'Surya', 'Hawells'],
+//   'MCCB': ['Choose...', 'Legrand', 'LNT'],
+//   'Television Tv': ['Choose...', 'Sony', 'LG'],
+//   'Fridge': ['Choose...', 'LG', 'Voltas'],
+//   'Steel tubes': ['Choose...', 'ARE 15', 'ARE 25'],
+//   'CPVC': ['Choose...', 'Astral', 'Vigor'],
+// };
 
 
-function updateSecondDropdown() {
-  const selectedOption1 = dropdown1.value;
-  const options1 = optionsMap1[selectedOption1] || [];
+// function updateSecondDropdown() {
+//   const selectedOption1 = dropdown1.value;
+//   const options1 = optionsMap1[selectedOption1] || [];
 
-  dropdown2.innerHTML = '';
+//   dropdown2.innerHTML = '';
 
-  options1.forEach((option) => {
-    const optionElement = document.createElement('option');
-    optionElement.value = option;
-    optionElement.textContent = option;
-    dropdown2.appendChild(optionElement);
-  });
+//   options1.forEach((option) => {
+//     const optionElement = document.createElement('option');
+//     optionElement.value = option;
+//     optionElement.textContent = option;
+//     dropdown2.appendChild(optionElement);
+//   });
 
-  // After updating the second dropdown, also update the third dropdown
-  updateThirdDropdown();
-}
+//   // After updating the second dropdown, also update the third dropdown
+//   updateThirdDropdown();
+// }
 
-function updateThirdDropdown() {
-  const selectedOption2 = dropdown2.value;
-  const options2 = optionsMap2[selectedOption2] || [];
+// function updateThirdDropdown() {
+//   const selectedOption2 = dropdown2.value;
+//   const options2 = optionsMap2[selectedOption2] || [];
 
-  dropdown3.innerHTML = '';
+//   dropdown3.innerHTML = '';
 
-  options2.forEach((option) => {
-    const optionElement = document.createElement('option');
-    optionElement.value = option;
-    optionElement.textContent = option;
-    dropdown3.appendChild(optionElement);
-  });
-}
+//   options2.forEach((option) => {
+//     const optionElement = document.createElement('option');
+//     optionElement.value = option;
+//     optionElement.textContent = option;
+//     dropdown3.appendChild(optionElement);
+//   });
+// }
 
-dropdown1.addEventListener('change', updateSecondDropdown);
-dropdown2.addEventListener('change', updateThirdDropdown);
+// dropdown1.addEventListener('change', updateSecondDropdown);
+// dropdown2.addEventListener('change', updateThirdDropdown);
 
-updateSecondDropdown();
-updateThirdDropdown();
+// updateSecondDropdown();
+// updateThirdDropdown();
 
 function validateForm() {
   let category = document.getElementById("dropdown1").value;

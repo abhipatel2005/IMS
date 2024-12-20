@@ -74,13 +74,13 @@
             <div class="row g-3">
 
               <div class="col-md-4">
-                <label for="dropdown" class="form-label">Department</label>
-                <select class="form-select" id="dropdown" name="department" required>
+                <label for="dropdown" class="form-label">Name</label>
+                <select class="form-select" id="dropdown" name="name" required>
                   <option value="">Choose...</option>
-                  <option value="Personnel Division">Personnel Division</option>
-                  <option value="Planning Division">Planning Division</option>
-                  <option value="NRI & ARTD Division">NRI & ARTD Division</option>
-                  <option value="Election Division">Election Division</option>
+                  <option value="Personnel Division">3/4 Elbow</option>
+                  <option value="Planning Division">1/2 Elbow</option>
+                  <option value="NRI & ARTD Division">1 Elbow</option>
+                  <option value="Election Division">4 Elbow</option>
                 </select>
                 <div class="invalid-feedback">
                   Please select a valid country.
@@ -91,19 +91,19 @@
                 <label for="dropdown1" class="form-label">Categories</label>
                 <select class="form-select" id="dropdown1" name="category" required>
                   <option value="choose">Choose...</option>
-                  <option value="it_products">IT Products</option>
-                  <option value="furniture">Furniture</option>
-                  <option value="stationary_items">Stationary Items</option>
+                  <option value="it_products">CPVC</option>
+                  <option value="furniture">UPVC</option>
+                  <!-- <option value="stationary_items">Stationary Items</option>
                   <option value="electrical_appliance">Electrical Appliance</option>
                   <option value="electrical_equipments">Electronic Equipments</option>
-                  <option value="pipes_fitting">Pipes and Fittings</option>
+                  <option value="pipes_fitting">Pipes and Fittings</option> -->
                 </select>
                 <div class="invalid-feedback">
                   Please provide a valid state.
                 </div>
               </div>
 
-              <div class="col-md-4">
+              <!-- <div class="col-md-4">
                 <label for="dropdown2" class="form-label">Sub-Categories</label>
                 <select class="form-select" id="dropdown2" name="sub_category" required>
                   <option value="">Choose...</option>
@@ -111,12 +111,16 @@
                 <div class="invalid-feedback">
                   Please provide a valid state.
                 </div>
-              </div>
+              </div> -->
 
               <div class="col-md-4">
                 <label for="dropdown3" class="form-label">Specifications</label>
                 <select class="form-select" id="dropdown3" name="specification" required>
-                  <option value="">Choose...</option>
+                  <option value="choose">Choose...</option>
+                  <option value="">3/4</option>
+                  <option value="">1/2</option>
+                  <option value="">1</option>
+                  <option value="">1 1/2</option>
                 </select>
                 <div class="invalid-feedback">
                   Please provide a valid state.
@@ -128,6 +132,14 @@
                 <input type="number" class="form-control" id="quantity" placeholder="" min="1" required name="quantity">
                 <div class="invalid-feedback">
                   Quantity required.
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <label for="quantity" class="form-label">Price</label>
+                <input type="number" class="form-control" id="quantity" placeholder="" min="1" required name="price">
+                <div class="invalid-feedback">
+                  Price required.
                 </div>
               </div>
             </div>
